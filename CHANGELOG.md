@@ -1,3 +1,13 @@
+## [1.2.0](https://github.com/omar-dulaimi/prisma-orpc-generator/compare/v1.1.1...v1.2.0) (2025-11-23)
+
+### ⚠ BREAKING CHANGES
+
+* migrate repo to Prisma 7 config workflow
+
+### 🚀 Features
+
+* migrate repo to Prisma 7 config workflow ([971927b](https://github.com/omar-dulaimi/prisma-orpc-generator/commit/971927b7a7c311ce863bdb561c5c9d6dd05aebc8))
+
 ## [Unreleased]
 
 ### 🚨 Breaking Changes
