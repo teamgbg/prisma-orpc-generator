@@ -166,15 +166,7 @@ export function generateProcedureCode(params: {
   config: Config;
   extraDescription?: string;
 }): string {
-  const {
-    name,
-    operationName,
-    outputType,
-    procedureType,
-    modelName,
-    baseOpType,
-    config,
-  } = params;
+  const { name, operationName, outputType, procedureType, modelName, baseOpType, config } = params;
 
   const procedure = procedureType === 'public' ? 'publicProcedure' : 'protectedProcedure';
   // Build output schema expression for zod

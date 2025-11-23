@@ -323,7 +323,7 @@ export function createMockContext(): MockContext {
  * Create a mock Prisma client
  */
 function createMockPrisma(): MockPrismaClient {
-  const models = [${models.map(m => `'${m.name.toLowerCase()}'`).join(', ')}];
+  const models = [${models.map((m) => `'${m.name.toLowerCase()}'`).join(', ')}];
   const mockPrisma: MockPrismaClient = {};
   
   for (const model of models) {
@@ -346,7 +346,6 @@ function createMockPrisma(): MockPrismaClient {
   return mockPrisma;
 }
 `);
-
   }
 
   private async generateTestServer(): Promise<void> {
@@ -417,12 +416,12 @@ export async function createTestServer(_router: any): Promise<TestServer> {
      setupFiles: ['tests/setup.ts']
    }
  });`;
-  
-     await fs.writeFile(path.join(this.outputDir, 'vitest.config.ts'), vitestConfig);
-   }
- 
-   private async generateTsProjectConfig(): Promise<void> {
-     const tsconfig = `{
+
+    await fs.writeFile(path.join(this.outputDir, 'vitest.config.ts'), vitestConfig);
+  }
+
+  private async generateTsProjectConfig(): Promise<void> {
+    const tsconfig = `{
    "compilerOptions": {
      "target": "ES2022",
      "module": "ESNext",
@@ -444,9 +443,9 @@ export async function createTestServer(_router: any): Promise<TestServer> {
      "zod-schemas/**/*.ts"
    ]
   }`;
-     await fs.writeFile(path.join(this.outputDir, 'tsconfig.json'), tsconfig);
-   }
- 
+    await fs.writeFile(path.join(this.outputDir, 'tsconfig.json'), tsconfig);
+  }
+
   private async generateTestTypes(): Promise<void> {
     const file = this.projectManager.createSourceFile(
       path.join(this.outputDir, 'tests', 'global.d.ts'),
@@ -467,7 +466,7 @@ declare global {
       undefined,
       { overwrite: true }
     );
- 
+
     setupFile.addStatements(`export {};
 /**
  * Vitest test setup

@@ -40,7 +40,9 @@ export class ShieldGenerator {
       shieldFile.formatText({ indentSize: 2 });
       this.logger.debug('Shield rules generated successfully');
     } catch (error) {
-      this.logger.error(`Failed to generate shield file: ${error instanceof Error ? error.message : error}`);
+      this.logger.error(
+        `Failed to generate shield file: ${error instanceof Error ? error.message : error}`
+      );
       throw error;
     }
   }
@@ -198,7 +200,15 @@ ${operations.join(',\n')}
   }
 
   private isWriteOperation(operation: string): boolean {
-    const writeOps = ['create', 'createMany', 'update', 'updateMany', 'upsert', 'delete', 'deleteMany'];
+    const writeOps = [
+      'create',
+      'createMany',
+      'update',
+      'updateMany',
+      'upsert',
+      'delete',
+      'deleteMany',
+    ];
     return writeOps.includes(operation);
   }
 
