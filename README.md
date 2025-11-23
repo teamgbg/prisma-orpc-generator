@@ -7,13 +7,13 @@
   <a href="https://www.npmjs.com/package/prisma-orpc-generator"><img alt="npm" src="https://img.shields.io/npm/v/prisma-orpc-generator?style=flat&label=npm"></a>
   <a href="https://github.com/omar-dulaimi/prisma-orpc-generator/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/omar-dulaimi/prisma-orpc-generator/release.yml?branch=master&label=CI&style=flat"></a>
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat"></a>
-  <a href="#quickstart"><img alt="node" src="https://img.shields.io/badge/node-18.18%2B%20%7C%2020.9%2B%20%7C%2022.11%2B-2ea44f?style=flat"></a>
-  <a href="#compatibility"><img alt="prisma" src="https://img.shields.io/badge/prisma-6%2B-2D3748?style=flat"></a>
-  <a href="tsconfig.json"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-%E2%89%A5%205.1-3178C6?style=flat"></a>
+  <a href="#quickstart"><img alt="node" src="https://img.shields.io/badge/node-20.19%2B%20%7C%2022.12%2B%20%7C%2024.0%2B-2ea44f?style=flat"></a>
+  <a href="#compatibility"><img alt="prisma" src="https://img.shields.io/badge/prisma-7%2B-2D3748?style=flat"></a>
+  <a href="tsconfig.json"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-%E2%89%A5%205.4-3178C6?style=flat"></a>
   <a href=".prettierrc"><img alt="Prettier" src="https://img.shields.io/badge/Code%20Style-Prettier-F7B93E?style=flat"></a>
 </p>
 
-<p><em>Prisma v6+, Node 18.18+/20.9+/22.11+, TypeScript ≥ 5.1.</em></p>
+<p><em>Prisma v7+, Node 20.19+/22.12+/24.0+, TypeScript ≥ 5.4.</em></p>
 </div>
 
 > TL;DR — Add the generator to your Prisma schema and run Prisma generate. That’s it.
@@ -39,9 +39,22 @@ generator orpc {
 }
 ```
 
+Create `prisma.config.ts` to hold your datasource connection (replace the URL for your database or driver adapter):
+
+```ts
+import { defineConfig } from '@prisma/config';
+
+export default defineConfig({
+  schema: './schema.prisma',
+  datasource: {
+    url: 'file:./dev.db',
+  },
+});
+```
+
 ```bash
 # generate
-npx prisma generate
+npx prisma generate --config prisma.config.ts
 ```
 
 ---
@@ -70,9 +83,9 @@ npx prisma generate
 <summary>Click to expand quickstart guide</summary>
 
 **Prerequisites**
-- Node: 18.18.0+, 20.9.0+, or 22.11.0+
-- Prisma CLI (v6+) in your project
-- TypeScript ≥ 5.1.0 recommended
+- Node: 20.19.0+, 22.12.0+, or 24.0.0+ (per Prisma 7 engine support)
+- Prisma CLI (v7+) in your project
+- TypeScript ≥ 5.4.0 recommended
 
 **Install**
 ```bash
@@ -99,7 +112,7 @@ generator orpc {
 ```
 **Generate**
 ```bash
-npx prisma generate
+npx prisma generate --config prisma.config.ts
 ```
 
 </details>
@@ -111,13 +124,13 @@ npx prisma generate
 
 <details>
 <summary>Click to expand compatibility info</summary>
-- Prisma ORM: v6+
-- Node.js minimums for Prisma v6:
-  - 18.18.0+
-  - 20.9.0+
-  - 22.11.0+
-  - Not supported: 16, 17, 19, 21
-- TypeScript: ≥ 5.1.0
+- Prisma ORM: v7+
+- Node.js minimums for Prisma v7:
+  - 20.19.0+
+  - 22.12.0+
+  - 24.0.0+
+  - Not supported: 16, 17, 18, 19, 21, 23
+- TypeScript: ≥ 5.4.0
 
 </details>
 
@@ -602,13 +615,13 @@ Notable files
 <summary>Click to expand FAQ and troubleshooting</summary>
 Prisma version mismatch
 - Symptom: generator fails or types not aligned
-- Action: ensure Prisma v6+ in dev deps and runtime
+- Action: ensure Prisma v7+ in dev deps and runtime
   - `npm i -D prisma @prisma/client`
-  - Regenerate: `npx prisma generate`
+  - Regenerate: `npx prisma generate --config prisma.config.ts`
 
 Node version or ESM issues
 - Symptom: runtime errors about module type or syntax
-- Action: use Node 18.18.0+, 20.9.0+, or 22.11.0+; align package type with your build, then rebuild `npm run build`
+- Action: use Node 20.19.0+, 22.12.0+, or 24.0.0+; align package type with your build, then rebuild `npm run build`
 
 Generated path is unexpected
 - Symptom: files not where you expect

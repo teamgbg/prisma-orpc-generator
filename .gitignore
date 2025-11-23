@@ -1,5 +1,6 @@
 node_modules
 lib
+!examples/basic/src/lib/
 temp
 temp-*
 debug-output

@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-This project is a TypeScript code generator for oRPC built around Prisma. Use Node.js 18+.
+This project is a TypeScript code generator for oRPC built around Prisma. Use Node.js 20.19+ (matching Prisma 7 engines).
 
 ## Project Structure & Module Organization
 - `src/`: source code.
@@ -42,5 +42,5 @@ This project is a TypeScript code generator for oRPC built around Prisma. Use No
 
 ## Security & Configuration Tips
 - Generated output defaults to `./src/generated/orpc` in consumer apps—never hardcode secrets.
-- Use `prisma`/`@prisma/client` >= 6.14 to match peer deps.
+- Use `prisma`/`@prisma/client` >= 7.0.0 to match peer deps.
 - Keep environment variables in `.env` and avoid committing sensitive data.

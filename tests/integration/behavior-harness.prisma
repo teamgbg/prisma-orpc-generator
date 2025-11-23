@@ -13,7 +13,6 @@ generator orpc {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./behavior.db"
 }
 
 model Author {

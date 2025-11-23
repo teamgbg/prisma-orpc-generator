@@ -1,7 +1,9 @@
+import path from 'path';
 import { beforeAll, describe, expect, it } from 'vitest';
 // We dynamically require the generated Prisma Client from this harness folder after generation.
 let prisma: any;
 let generated: any;
+const harnessDbUrl = `file:${path.join(__dirname, 'behavior.db').replace(/\\/g, '/')}`;
 
 async function generate() {
   // Invoke Prisma generate programmatically is complex here; rely on user running `npx prisma generate` in tests/integration.
@@ -11,12 +13,16 @@ async function generate() {
 beforeAll(async () => {
   try {
     const { PrismaClient } = require('./node_modules/@prisma/client');
-    prisma = new PrismaClient();
+    const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
+    const adapter = new PrismaBetterSqlite3({ url: harnessDbUrl });
+    prisma = new PrismaClient({ adapter });
   } catch {
     // Fallback: attempt root client (may not match schema) – tests will skip if mismatch
     try {
       const { PrismaClient } = require('@prisma/client');
-      prisma = new PrismaClient();
+      const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
+      const adapter = new PrismaBetterSqlite3({ url: harnessDbUrl });
+      prisma = new PrismaClient({ adapter });
     } catch {
       // No Prisma client available, skip tests
       console.log('Prisma client not available, skipping behavior harness tests');

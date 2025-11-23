@@ -11,6 +11,7 @@ try { require('ts-node/register/transpile-only'); } catch { /* ignore */ }
 let workspace: TestWorkspace;
 let caller: any;
 let prisma: any;
+let dbUrl: string;
 const projectRoot = process.cwd();
 
 function getData<T=any>(res: any): T { return res?.data ?? res; }
@@ -19,7 +20,6 @@ function getId(res: any): string | undefined { return getData(res)?.id; }
 const schema = `
 datasource db {
   provider = "sqlite"
-  url      = "file:./test.db"
 }
 
 generator client {
@@ -50,15 +50,20 @@ beforeAll(async () => {
   
   const workspacePath = await workspace.setup();
   const schemaPath = await workspace.writeSchema(schema);
+  const dbPath = path.join(workspacePath, 'test.db');
+  dbUrl = `file:${dbPath.split(path.sep).join('/')}`;
+  const configPath = await workspace.writeConfig({ datasourceUrl: dbUrl });
   const generatedOutput = path.join(workspacePath, 'orpc');
   
   // Generate prisma client and push database schema
-  await workspace.generatePrismaClient(schemaPath);
-  await workspace.createDatabase();
+  await workspace.generatePrismaClient(configPath);
+  await workspace.createDatabase(configPath);
   
   // Initialize Prisma client
   const { PrismaClient } = require('@prisma/client');
-  prisma = new PrismaClient();
+  const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
+  const adapter = new PrismaBetterSqlite3({ url: dbUrl });
+  prisma = new PrismaClient({ adapter });
   
   // Run oRPC generator
   const options: any = {
@@ -82,7 +87,7 @@ beforeAll(async () => {
       {
         name: 'db',
         provider: 'sqlite',
-        url: { value: 'file:./test.db', fromEnvVar: null },
+        url: { value: dbUrl, fromEnvVar: null },
         directUrl: null,
       },
     ],

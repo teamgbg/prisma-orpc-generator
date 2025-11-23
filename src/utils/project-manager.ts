@@ -215,12 +215,12 @@ export class ProjectManager {
       },
       files: ['routers/**/*'],
       dependencies: {
-        '@orpc/server': '^1.8.5',
-        '@prisma/client': '^6.15.0',
-        zod: '^4.1.5',
+        '@orpc/server': '^1.11.3',
+        '@prisma/client': '^7.0.0',
+        zod: '^4.1.12',
       },
       peerDependencies: {
-        '@prisma/client': '>=6.0.0',
+        '@prisma/client': '>=7.0.0',
       },
       keywords: ['orpc', 'prisma', 'api', 'type-safe', 'generated'],
     };

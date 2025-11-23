@@ -1,3 +1,14 @@
+## [Unreleased]
+
+### 🚨 Breaking Changes
+
+- require Prisma ORM 7+, following the upstream Node 20.19+/22.12+/24.0 runtime floor and TypeScript ≥ 5.4
+
+### 🧰 Maintenance
+
+- align generated package metadata with Prisma 7 dependencies and @orpc/server ^1.11.3
+- update local examples and tests to use prisma.config.ts and driver adapters for SQLite
+
 ## [1.1.1](https://github.com/omar-dulaimi/prisma-orpc-generator/compare/v1.1.0...v1.1.1) (2025-09-17)
 
 ### 🐛 Bug Fixes

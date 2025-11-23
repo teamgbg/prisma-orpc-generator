@@ -1,7 +1,11 @@
+import path from 'path';
 import { PrismaClient } from '@prisma/client';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import bcrypt from 'bcrypt';
 
-const prisma = new PrismaClient();
+const dbUrl = `file:${path.join(process.cwd(), 'dev.db').replace(/\\/g, '/')}`;
+const adapter = new PrismaBetterSqlite3({ url: dbUrl });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   await prisma.post.deleteMany();

@@ -51,8 +51,23 @@ export class TestWorkspace {
     return schemaPath;
   }
 
-  async generatePrismaClient(schemaPath: string): Promise<void> {
-    const result = spawnSync('npx', ['prisma', 'generate', '--schema', schemaPath], {
+  async writeConfig(options: { datasourceUrl: string }): Promise<string> {
+    const configPath = path.join(this.workspacePath, 'prisma.config.ts');
+    const contents = `import { defineConfig } from '@prisma/config';
+
+export default defineConfig({
+  schema: './schema.prisma',
+  datasource: {
+    url: '${options.datasourceUrl}',
+  },
+});
+`;
+    await fs.writeFile(configPath, contents, 'utf8');
+    return configPath;
+  }
+
+  async generatePrismaClient(configPath: string): Promise<void> {
+    const result = spawnSync('npx', ['prisma', 'generate', '--config', configPath], {
       cwd: this.projectRoot,
       stdio: 'pipe',
       encoding: 'utf8'
@@ -63,15 +78,14 @@ export class TestWorkspace {
     }
   }
 
-  async createDatabase(): Promise<string> {
+  async createDatabase(configPath: string): Promise<string> {
     const dbPath = path.join(this.workspacePath, 'test.db');
     
     // Create empty SQLite database
     await fs.writeFile(dbPath, '');
     
     // Push schema to create tables
-    const schemaPath = path.join(this.workspacePath, 'schema.prisma');
-    const result = spawnSync('npx', ['prisma', 'db', 'push', '--schema', schemaPath, '--skip-generate'], {
+    const result = spawnSync('npx', ['prisma', 'db', 'push', '--config', configPath], {
       cwd: this.projectRoot,
       stdio: 'pipe',
       encoding: 'utf8'
