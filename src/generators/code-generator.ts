@@ -373,7 +373,7 @@ export { ${routerName}Procedures };
     for (const [opType, opName] of Object.entries(operations)) {
       if (opType === 'model') continue;
 
-      const baseOpType = opType.replace('OrThrow', '');
+      const baseOpType = opType.replace('OrThrow', '').replace(/One$/, '');
 
       if (generatedOperations.has(baseOpType)) continue;
 
@@ -430,13 +430,13 @@ export { ${routerName}Procedures };
     // Examples:
     //   user + findMany  -> /user/findMany
     //   user + create    -> /user/create
-    //   user + findUnique-> /user/findById
+    //   user + findUnique-> /user/findUnique
     const opToSegment: Record<string, string> = {
       create: 'create',
       createMany: 'createMany',
       findFirst: 'findFirst',
       findMany: 'findMany',
-      findUnique: 'findById',
+      findUnique: 'findUnique',
       update: 'update',
       updateMany: 'updateMany',
       upsert: 'upsert',
@@ -476,7 +476,7 @@ export { ${routerName}Procedures };
       createMany: 'createMany',
       findFirst: 'findFirst',
       findMany: 'findMany',
-      findUnique: 'findById',
+      findUnique: 'findUnique',
       update: 'update',
       updateMany: 'updateMany',
       upsert: 'upsert',

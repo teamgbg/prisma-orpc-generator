@@ -171,7 +171,7 @@ export type Permissions = typeof permissions;
     // Map Prisma operations to shield rules
     const operationMappings: Record<string, string> = {
       findMany: 'list',
-      findUnique: 'findById',
+      findUnique: 'findUnique',
       findFirst: 'findFirst',
       create: 'create',
       createMany: 'createMany',

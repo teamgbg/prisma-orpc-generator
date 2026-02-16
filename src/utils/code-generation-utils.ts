@@ -318,8 +318,8 @@ function generateHandlerCode(
   let inputParam = '';
   switch (baseOpType) {
     case 'create':
-      // CreateOneSchema provides { data: ... } structure
-      inputParam = '{ data: input.data }';
+      // Pass full Prisma args to preserve select/include and other options.
+      inputParam = 'input';
       break;
     case 'createMany':
       // CreateManySchema provides { data: ... } where data is array or single item
@@ -331,32 +331,19 @@ function generateHandlerCode(
       inputParam = 'input';
       break;
     case 'findUnique':
-      // FindUniqueSchema provides { where: ... } structure
-      inputParam = '{ where: input.where }';
+      inputParam = 'input';
       break;
     case 'update':
-      // UpdateOneSchema provides { where: ..., data: ... } structure
-      if (config.enableSoftDeletes && hasDeletedAt) {
-        inputParam = '{ where: { ...input.where, deletedAt: null }, data: input.data }';
-      } else {
-        inputParam = '{ where: input.where, data: input.data }';
-      }
+      inputParam = 'input';
       break;
     case 'updateMany':
-      // UpdateManySchema provides { where: ..., data: ... } structure
-      if (config.enableSoftDeletes && hasDeletedAt) {
-        inputParam = '{ where: { ...input.where, deletedAt: null }, data: input.data }';
-      } else {
-        inputParam = '{ where: input.where, data: input.data }';
-      }
+      inputParam = 'input';
       break;
     case 'delete':
-      // DeleteOneSchema provides { where: ... } structure
-      inputParam = '{ where: input.where }';
+      inputParam = 'input';
       break;
     case 'deleteMany':
-      // DeleteManySchema provides { where: ... } structure
-      inputParam = '{ where: input.where }';
+      inputParam = 'input';
       break;
     case 'count':
     case 'aggregate':
@@ -365,7 +352,7 @@ function generateHandlerCode(
       inputParam = 'input';
       break;
     case 'upsert':
-      inputParam = '{ where: input.where, create: input.create, update: input.update }';
+      inputParam = 'input';
       break;
     default:
       inputParam = 'input';
