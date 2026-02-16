@@ -11,19 +11,19 @@ interface ValidationRequirement {
  */
 export function getInputTypeByOpName(opType: string, modelName: string): string | undefined {
   const inputTypeMap: Record<string, string> = {
-    create: `${modelName}CreateInput`,
-    createMany: `${modelName}CreateInput`,
-    findFirst: `${modelName}WhereInput`,
-    findMany: `${modelName}WhereInput`,
-    findUnique: `${modelName}WhereUniqueInput`,
-    update: `${modelName}UpdateArgs`,
-    updateMany: `${modelName}UpdateManyArgs`,
-    upsert: `${modelName}UpsertArgs`,
-    delete: `${modelName}WhereUniqueInput`,
-    deleteMany: `${modelName}WhereInput`,
-    count: `${modelName}WhereInput`,
-    aggregate: `${modelName}WhereInput`,
-    groupBy: `${modelName}WhereInput`,
+    create: `Prisma.${modelName}CreateArgs`,
+    createMany: `Prisma.${modelName}CreateManyArgs`,
+    findFirst: `Prisma.${modelName}FindFirstArgs`,
+    findMany: `Prisma.${modelName}FindManyArgs`,
+    findUnique: `Prisma.${modelName}FindUniqueArgs`,
+    update: `Prisma.${modelName}UpdateArgs`,
+    updateMany: `Prisma.${modelName}UpdateManyArgs`,
+    upsert: `Prisma.${modelName}UpsertArgs`,
+    delete: `Prisma.${modelName}DeleteArgs`,
+    deleteMany: `Prisma.${modelName}DeleteManyArgs`,
+    count: `Prisma.${modelName}CountArgs`,
+    aggregate: `Prisma.${modelName}AggregateArgs`,
+    groupBy: `Prisma.${modelName}GroupByArgs`,
   };
 
   return inputTypeMap[opType];

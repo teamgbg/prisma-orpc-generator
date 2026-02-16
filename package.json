@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "prepare": "tsc",
     "build:watch": "tsc --watch",
     "dev": "npm run build:watch",
     "test": "vitest run",

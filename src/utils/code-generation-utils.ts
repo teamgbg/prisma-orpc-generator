@@ -3,7 +3,7 @@ import path from 'path';
 import { SourceFile } from 'ts-morph';
 import { Config } from '../config/schema';
 import { getAvailableAggregations } from './model-utils';
-import { getPrismaMethodName } from './operation-utils';
+import { getInputTypeByOpName, getPrismaMethodName } from './operation-utils';
 
 // Type interfaces for code generation
 interface CodeGenField {
@@ -239,6 +239,12 @@ export function generateProcedureCode(params: {
   // Add input validation using proper CRUD schemas
   if (config.generateInputValidation && operationSchema) {
     chainParts.push(`.input(${operationSchema})`);
+  } else if (!config.generateInputValidation) {
+    // Preserve type inference for generated clients even when runtime validation is disabled.
+    const inputType = getInputTypeByOpName(baseOpType, modelName);
+    if (inputType) {
+      chainParts.push(`.input<${inputType}>()`);
+    }
   }
 
   // Add output validation

@@ -300,11 +300,17 @@ export class ORPCGenerator {
     models: PrismaModel[]
   ): Promise<void> {
     const tasks = [];
+    const shouldGenerateValidationSchemas =
+      this.config.generateInputValidation || this.config.generateOutputValidation;
 
-    // Ensure prisma-zod-generator outputs are available when using Zod
-    if (this.config.schemaLibrary === 'zod') {
+    // Only generate Zod schemas when Zod is selected and validation is actually enabled.
+    if (this.config.schemaLibrary === 'zod' && shouldGenerateValidationSchemas) {
       this.spinner.text = 'Generating Zod schemas (prisma-zod-generator)...';
       tasks.push(this.generateZodSchemasProgrammatically(options, models));
+    } else if (this.config.schemaLibrary === 'zod') {
+      this.logger.debug(
+        'Skipping prisma-zod-generator because both generateInputValidation and generateOutputValidation are disabled'
+      );
     }
 
     // Documentation
