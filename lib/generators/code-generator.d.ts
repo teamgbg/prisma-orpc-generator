@@ -1,0 +1,31 @@
+import { GeneratorOptions } from '@prisma/generator-helper';
+import { Config } from '../config/schema';
+import { PrismaModel } from '../types/generator-types';
+import { Logger } from '../utils/logger';
+import { ProjectManager } from '../utils/project-manager';
+export declare class CodeGenerator {
+    private config;
+    private outputDir;
+    private projectManager;
+    private logger;
+    constructor(config: Config, outputDir: string, projectManager: ProjectManager, logger: Logger);
+    generateBaseRouter(options: GeneratorOptions): Promise<void>;
+    private generateBaseRouterContent;
+    private generateShieldIntegration;
+    private resolveShieldModuleSpecifierForHelpers;
+    private generateUtilityFunctions;
+    generateModelRouter(model: PrismaModel, modelOperations: unknown[]): Promise<void>;
+    private generateModelRouterContent;
+    private generateRelationProcedures;
+    private capitalize;
+    private generateModelProcedures;
+    private generateSingleProcedure;
+    private getProcedureName;
+    private getProcedureType;
+    generateAppRouter(models: PrismaModel[]): Promise<void>;
+    private generateBasicAppRouter;
+    private resolveShieldModuleSpecifier;
+    private generateShieldedAppRouter;
+    private generateErrorHandlingModule;
+}
+//# sourceMappingURL=code-generator.d.ts.map
