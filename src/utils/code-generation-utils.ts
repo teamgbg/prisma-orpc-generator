@@ -476,21 +476,6 @@ function generateHandlerCode(
     }
   }
 
-  // Handle not found cases
-  if (baseOpType === 'findUnique' || baseOpType === 'findFirst') {
-    handler += `
-      
-      if (!result) {
-        throw new ORPCError('NOT_FOUND', { data: { message: \`${modelName} not found\` } });
-      }`;
-    if ((config.enableSoftDeletes || hasDeletedAt) && hasDeletedAt) {
-      handler += `
-      if (result && result.deletedAt) {
-        throw new ORPCError('NOT_FOUND', { data: { message: \`${modelName} not found\` } });
-      }`;
-    }
-  }
-
   // Return results (optionally wrapped)
   if (config.wrapResponses) {
     if (baseOpType === 'count') {
