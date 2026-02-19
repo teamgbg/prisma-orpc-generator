@@ -30,7 +30,8 @@
     "example:basic-start-only": "pnpm -C examples/basic run dev",
     "example:basic": "pnpm run build && pnpm --dir examples/basic install && pnpm --dir examples/basic exec prisma generate --config prisma.config.ts && pnpm --dir examples/basic exec prisma db push --config prisma.config.ts && pnpm --dir examples/basic run db:seed && pnpm --dir examples/basic run dev",
     "example:basic:prepare": "pnpm run build && pnpm --dir examples/basic install && pnpm --dir examples/basic exec prisma generate --config prisma.config.ts && pnpm --dir examples/basic exec prisma db push --config prisma.config.ts && pnpm --dir examples/basic run db:seed",
-    "example:basic:build": "pnpm run build && pnpm --dir examples/basic install && pnpm --dir examples/basic exec prisma generate --config prisma.config.ts && pnpm --dir examples/basic run build:relaxed"
+    "example:basic:build": "pnpm run build && pnpm --dir examples/basic install && pnpm --dir examples/basic exec prisma generate --config prisma.config.ts && pnpm --dir examples/basic run build:relaxed",
+    "prepare": "npm run build"
   },
   "keywords": [
     "prisma",
