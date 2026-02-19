@@ -420,13 +420,13 @@ function generateHandlerCode(
     }
   }
 
-  // Return results directly (no wrapper)
+  // Return results wrapped in standard envelope for client consistency
   if (baseOpType === 'count') {
     handler += `
-      return { count: result };`;
+      return createSuccessResponse({ count: result }, { operation: baseOpType });`;
   } else {
     handler += `
-      return result;`;
+      return createSuccessResponse(result, { operation: baseOpType });`;
   }
 
   handler += `
