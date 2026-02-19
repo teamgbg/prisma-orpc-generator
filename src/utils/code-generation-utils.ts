@@ -186,11 +186,6 @@ export function generateProcedureCode(params: {
   // Build procedure chain
   const chainParts = [procedure];
 
-  // Attach OpenAPI route metadata when provided
-  if (params.openApiRoute) {
-    const { method, path, successStatus } = params.openApiRoute;
-    const statusPart = typeof successStatus === 'number' ? `, successStatus: ${successStatus}` : '';
-    chainParts.push(`.route({ method: '${method}', path: '${path}'${statusPart} })`);
   }
 
   // Note: Primary key detection and helper functions removed as unused
@@ -249,10 +244,8 @@ export function generateProcedureCode(params: {
 
   // Add output validation
   if (config.generateOutputValidation && outputSchemaExpr) {
-    if (config.wrapResponses && config.schemaLibrary === 'zod') {
-      const dataSchema = outputSchemaExpr || 'z.unknown()';
-      chainParts.push(
-        `.output(z.object({ success: z.literal(true), data: ${dataSchema}, meta: z.object({}).passthrough().optional() }))`
+    chainParts.push(`.output(${outputSchemaExpr})`);
+  }
       );
     } else {
       chainParts.push(`.output(${outputSchemaExpr})`);
@@ -315,7 +308,7 @@ function generateHandlerCode(
 
   // Handle specific input patterns for different operations
   // Now that we use proper CRUD schemas, the input already has the correct structure
-  let inputParam = '';
+  const inputParam = 'input';
   switch (baseOpType) {
     case 'create':
       // Pass full Prisma args to preserve select/include and other options.
@@ -476,27 +469,18 @@ function generateHandlerCode(
     }
   }
 
-  // Return results (optionally wrapped)
-  if (config.wrapResponses) {
-    if (baseOpType === 'count') {
-      handler += `
-  return createSuccessResponse({ count: result }, { operation: baseOpType });`;
-    } else {
-      handler += `
-  return createSuccessResponse(result, { operation: baseOpType });`;
-    }
-  } else {
-    if (baseOpType === 'count') {
-      handler += `
-  return { count: result };`;
-    } else {
-      handler += `
   return result;`;
     }
   }
 
   handler += `
   }`;
+
+  if (baseOpType === "count") {
+    handler += `\n  return { count: result };`;
+  } else {
+    handler += `\n  return result;`;
+  }
 
   return handler;
 }
