@@ -186,8 +186,6 @@ export function generateProcedureCode(params: {
   // Build procedure chain
   const chainParts = [procedure];
 
-  }
-
   // Note: Primary key detection and helper functions removed as unused
 
   // Map operations to their proper CRUD schemas
@@ -246,11 +244,6 @@ export function generateProcedureCode(params: {
   if (config.generateOutputValidation && outputSchemaExpr) {
     chainParts.push(`.output(${outputSchemaExpr})`);
   }
-      );
-    } else {
-      chainParts.push(`.output(${outputSchemaExpr})`);
-    }
-  }
 
   // Generate handler
   const handlerCode = generateHandlerCode(
@@ -306,50 +299,8 @@ function generateHandlerCode(
   // Add the main operation with correct Prisma method calls
   const prismaMethod = getPrismaMethodName(baseOpType);
 
-  // Handle specific input patterns for different operations
-  // Now that we use proper CRUD schemas, the input already has the correct structure
+  // Input is always passed through directly - CRUD schemas already have the correct structure
   const inputParam = 'input';
-  switch (baseOpType) {
-    case 'create':
-      // Pass full Prisma args to preserve select/include and other options.
-      inputParam = 'input';
-      break;
-    case 'createMany':
-      // CreateManySchema provides { data: ... } where data is array or single item
-      inputParam = 'input';
-      break;
-    case 'findFirst':
-    case 'findMany':
-      // FindManySchema provides full Prisma args structure
-      inputParam = 'input';
-      break;
-    case 'findUnique':
-      inputParam = 'input';
-      break;
-    case 'update':
-      inputParam = 'input';
-      break;
-    case 'updateMany':
-      inputParam = 'input';
-      break;
-    case 'delete':
-      inputParam = 'input';
-      break;
-    case 'deleteMany':
-      inputParam = 'input';
-      break;
-    case 'count':
-    case 'aggregate':
-    case 'groupBy':
-      // These schemas provide full Prisma args structure
-      inputParam = 'input';
-      break;
-    case 'upsert':
-      inputParam = 'input';
-      break;
-    default:
-      inputParam = 'input';
-  }
 
   // For soft delete aware reads, inject deletedAt filter lazily
   if (
@@ -469,18 +420,17 @@ function generateHandlerCode(
     }
   }
 
-  return result;`;
-    }
+  // Return results directly (no wrapper)
+  if (baseOpType === 'count') {
+    handler += `
+      return { count: result };`;
+  } else {
+    handler += `
+      return result;`;
   }
 
   handler += `
-  }`;
-
-  if (baseOpType === "count") {
-    handler += `\n  return { count: result };`;
-  } else {
-    handler += `\n  return result;`;
-  }
+    }`;
 
   return handler;
 }
