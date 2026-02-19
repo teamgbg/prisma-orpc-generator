@@ -457,7 +457,7 @@ export { ${routerName}Procedures };
       inputType,
       outputType,
       procedureType,
-      openApiRoute: { method: 'POST', path: routePath },
+      openApiRoute: null,
       modelName,
       opType,
       baseOpType,
