@@ -94,30 +94,6 @@ export declare const configSchema: z.ZodObject<{
         false: "false";
     }>, z.ZodTransform<any, "true" | "false">>>;
     prismaClientPath: z.ZodDefault<z.ZodString>;
-    generateShield: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    shieldPath: z.ZodOptional<z.ZodString>;
-    defaultReadRule: z.ZodDefault<z.ZodEnum<{
-        allow: "allow";
-        deny: "deny";
-        auth: "auth";
-    }>>;
-    defaultWriteRule: z.ZodDefault<z.ZodEnum<{
-        allow: "allow";
-        deny: "deny";
-        auth: "auth";
-    }>>;
-    denyErrorCode: z.ZodDefault<z.ZodString>;
-    debug: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    allowExternalErrors: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
 }, z.core.$strip>;
 export type Config = z.infer<typeof configSchema>;
 export declare const defaultConfigs: {

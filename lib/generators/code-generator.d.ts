@@ -11,8 +11,6 @@ export declare class CodeGenerator {
     constructor(config: Config, outputDir: string, projectManager: ProjectManager, logger: Logger);
     generateBaseRouter(options: GeneratorOptions): Promise<void>;
     private generateBaseRouterContent;
-    private generateShieldIntegration;
-    private resolveShieldModuleSpecifierForHelpers;
     private generateUtilityFunctions;
     generateModelRouter(model: PrismaModel, modelOperations: unknown[]): Promise<void>;
     private generateModelRouterContent;
@@ -24,8 +22,6 @@ export declare class CodeGenerator {
     private getProcedureType;
     generateAppRouter(models: PrismaModel[]): Promise<void>;
     private generateBasicAppRouter;
-    private resolveShieldModuleSpecifier;
-    private generateShieldedAppRouter;
     private generateErrorHandlingModule;
 }
 //# sourceMappingURL=code-generator.d.ts.map

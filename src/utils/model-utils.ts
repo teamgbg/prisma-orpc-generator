@@ -172,6 +172,15 @@ export function hasSoftDeleteField(model: DMMF.Model): boolean {
 }
 
 /**
+ * Check if model is org-scoped (has organisation_id field)
+ */
+export function hasOrganisationIdField(model: DMMF.Model): boolean {
+  return model.fields.some(
+    (field: DMMF.Field) => field.name === 'organisation_id' && field.type === 'String'
+  );
+}
+
+/**
  * Get model's unique fields for findUnique operations
  */
 export function getUniqueFields(model: DMMF.Model): string[] {

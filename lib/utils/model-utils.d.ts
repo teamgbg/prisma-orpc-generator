@@ -35,6 +35,10 @@ export declare function getModelRelations(model: DMMF.Model): DMMF.Field[];
  */
 export declare function hasSoftDeleteField(model: DMMF.Model): boolean;
 /**
+ * Check if model is org-scoped (has organisation_id field)
+ */
+export declare function hasOrganisationIdField(model: DMMF.Model): boolean;
+/**
  * Get model's unique fields for findUnique operations
  */
 export declare function getUniqueFields(model: DMMF.Model): string[];
