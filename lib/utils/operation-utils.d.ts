@@ -49,6 +49,14 @@ export declare function returnsMultiple(opType: string): boolean;
  */
 export declare function getValidationRequirements(opType: string): ValidationRequirement;
 /**
+ * Get the exposed procedure/route name for an operation.
+ *
+ * Prisma uses "findUnique" internally, but our API exposes "findById"
+ * because it's clearer and matches how callers use it.
+ * This is the SINGLE source of truth for that mapping.
+ */
+export declare function getExposedName(opType: string): string;
+/**
  * Get the correct Prisma client method name for an operation
  */
 export declare function getPrismaMethodName(opType: string): string;

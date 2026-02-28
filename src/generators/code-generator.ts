@@ -13,6 +13,7 @@ import {
 } from '../utils/code-generation-utils';
 import { Logger } from '../utils/logger';
 import {
+  getExposedName,
   getInputTypeByOpName,
   getOutputTypeByOpName,
   shouldGenerateOperation,
@@ -387,30 +388,9 @@ export { ${routerName}Procedures };
     // Determine procedure type (public/protected)
     const procedureType = this.getProcedureType(baseOpType);
 
-    // Compute OpenAPI route (RPC-style) so OpenAPIHandler can match:
-    // POST /{model}/{segment}
-    // Examples:
-    //   user + findMany  -> /user/findMany
-    //   user + create    -> /user/create
-    //   user + findUnique-> /user/findById
-    const opToSegment: Record<string, string> = {
-      create: 'create',
-      createMany: 'createMany',
-      findFirst: 'findFirst',
-      findMany: 'findMany',
-      findUnique: 'findById',
-      update: 'update',
-      updateMany: 'updateMany',
-      upsert: 'upsert',
-      delete: 'delete',
-      deleteMany: 'deleteMany',
-      count: 'count',
-      aggregate: 'aggregate',
-      groupBy: 'groupBy',
-    };
-    const segment = opToSegment[baseOpType] ?? baseOpType;
-    // Include model name in path for OpenAPIHandler to avoid path conflicts
-    const routePath = `/${modelName.toLowerCase()}/${segment}`;
+    // Compute OpenAPI route (RPC-style): POST /{model}/{exposedName}
+    const exposedName = getExposedName(baseOpType);
+    const routePath = `/${modelName.toLowerCase()}/${exposedName}`;
 
     // Generate the procedure
     return generateProcedureCode({
@@ -433,23 +413,7 @@ export { ${routerName}Procedures };
       ? modelName.charAt(0).toLowerCase() + modelName.slice(1)
       : '';
 
-    const operationMap: Record<string, string> = {
-      create: 'create',
-      createMany: 'createMany',
-      findFirst: 'findFirst',
-      findMany: 'findMany',
-      findUnique: 'findById',
-      update: 'update',
-      updateMany: 'updateMany',
-      upsert: 'upsert',
-      delete: 'delete',
-      deleteMany: 'deleteMany',
-      count: 'count',
-      aggregate: 'aggregate',
-      groupBy: 'groupBy',
-    };
-
-    const operation = operationMap[baseOpType] || baseOpType;
+    const operation = getExposedName(baseOpType);
     return prefix
       ? `${prefix}${operation.charAt(0).toUpperCase()}${operation.slice(1)}`
       : operation;

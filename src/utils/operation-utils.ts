@@ -126,7 +126,7 @@ export function getOperationDescription(opType: string, modelName: string): stri
     createMany: `Create multiple ${modelName} records`,
     findFirst: `Find the first ${modelName} matching the criteria`,
     findMany: `Find multiple ${modelName} records with pagination`,
-    findUnique: `Find a unique ${modelName} by ID or unique field`,
+    findUnique: `Find ${modelName} by ID`,
     update: `Update an existing ${modelName}`,
     updateMany: `Update multiple ${modelName} records`,
     upsert: `Create or update a ${modelName}`,
@@ -149,7 +149,7 @@ export function getOperationSummary(opType: string, modelName: string): string {
     createMany: `Bulk create ${modelName}`,
     findFirst: `Get first ${modelName}`,
     findMany: `List ${modelName}`,
-    findUnique: `Get ${modelName}`,
+    findUnique: `Get ${modelName} by ID`,
     update: `Update ${modelName}`,
     updateMany: `Bulk update ${modelName}`,
     upsert: `Upsert ${modelName}`,
@@ -203,6 +203,18 @@ export function getValidationRequirements(opType: string): ValidationRequirement
   return (
     requirements[opType] || { requiresInput: true, requiresOutput: true, inputOptional: false }
   );
+}
+
+/**
+ * Get the exposed procedure/route name for an operation.
+ *
+ * Prisma uses "findUnique" internally, but our API exposes "findById"
+ * because it's clearer and matches how callers use it.
+ * This is the SINGLE source of truth for that mapping.
+ */
+export function getExposedName(opType: string): string {
+  if (opType === 'findUnique') return 'findById';
+  return opType;
 }
 
 /**

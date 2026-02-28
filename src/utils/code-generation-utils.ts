@@ -3,7 +3,7 @@ import path from 'path';
 import { SourceFile } from 'ts-morph';
 import { Config } from '../config/schema';
 import { getAvailableAggregations } from './model-utils';
-import { getInputTypeByOpName, getPrismaMethodName } from './operation-utils';
+import { getExposedName, getInputTypeByOpName, getPrismaMethodName } from './operation-utils';
 
 // Type interfaces for code generation
 interface CodeGenField {
@@ -258,7 +258,7 @@ export function generateProcedureCode(params: {
   chainParts.push(`.handler((${handlerCode}) as any)`);
 
   return `  /**
-   * ${name} - ${baseOpType} operation for ${modelName}
+   * ${name} - ${getExposedName(baseOpType)} operation for ${modelName}
   * Generated with advanced oRPC features${params.extraDescription ? `\n   * ${params.extraDescription}` : ''}
    */
   ${name}: ${chainParts.join('\n    ')}`;
