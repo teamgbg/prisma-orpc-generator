@@ -392,13 +392,13 @@ export { ${routerName}Procedures };
     // Examples:
     //   user + findMany  -> /user/findMany
     //   user + create    -> /user/create
-    //   user + findUnique-> /user/findUnique
+    //   user + findUnique-> /user/findById
     const opToSegment: Record<string, string> = {
       create: 'create',
       createMany: 'createMany',
       findFirst: 'findFirst',
       findMany: 'findMany',
-      findUnique: 'findUnique',
+      findUnique: 'findById',
       update: 'update',
       updateMany: 'updateMany',
       upsert: 'upsert',
@@ -438,7 +438,7 @@ export { ${routerName}Procedures };
       createMany: 'createMany',
       findFirst: 'findFirst',
       findMany: 'findMany',
-      findUnique: 'findUnique',
+      findUnique: 'findById',
       update: 'update',
       updateMany: 'updateMany',
       upsert: 'upsert',
