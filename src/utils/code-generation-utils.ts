@@ -591,6 +591,15 @@ function generateHandlerCode(
       const result = await ctx.prisma.${modelVar}.${prismaMethod}((input) as Prisma.${modelName}${argsType});`;
   }
 
+  // findUnique should throw NOT_FOUND if no result (findById semantic)
+  if (baseOpType === 'findUnique') {
+    handler += `
+
+      if (!result) {
+        throw new ORPCError('NOT_FOUND', { data: { message: \`${modelName} not found\` } });
+      }`;
+  }
+
   // Return results directly (no wrapper)
   if (baseOpType === 'count') {
     handler += `

@@ -27,6 +27,13 @@ export class CodeGenerator {
     private logger: Logger
   ) {}
 
+  /**
+   * Normalize config flags that may arrive as strings ("true"/"false") from external generator config.
+   */
+  private isEnabled(value: unknown): boolean {
+    return value === true || value === 'true';
+  }
+
   async generateBaseRouter(options: GeneratorOptions): Promise<void> {
     this.logger.debug('Generating base router and utilities...');
 
@@ -44,7 +51,7 @@ export class CodeGenerator {
     this.logger.debug('Base router generated successfully');
 
     // Generate server error handling module if enabled
-    if (this.config.generateErrorHandling) {
+    if (this.isEnabled(this.config.generateErrorHandling)) {
       await this.generateErrorHandlingModule();
     }
   }
@@ -149,7 +156,7 @@ ${this.generateUtilityFunctions()}
   }
 
   private generateUtilityFunctions(): string {
-    const successHelpers = this.config.wrapResponses
+    const successHelpers = this.isEnabled(this.config.wrapResponses)
       ? `
  /**
   * Create standardized success response
@@ -208,7 +215,7 @@ ${this.generateUtilityFunctions()}
 
     // Add imports
     const baseImports = ['or', 'publicProcedure', 'protectedProcedure'];
-    if (this.config.wrapResponses) {
+    if (this.isEnabled(this.config.wrapResponses)) {
       baseImports.push('createSuccessResponse');
     }
 

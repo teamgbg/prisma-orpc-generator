@@ -9,6 +9,10 @@ export declare class CodeGenerator {
     private projectManager;
     private logger;
     constructor(config: Config, outputDir: string, projectManager: ProjectManager, logger: Logger);
+    /**
+     * Normalize config flags that may arrive as strings ("true"/"false") from external generator config.
+     */
+    private isEnabled;
     generateBaseRouter(options: GeneratorOptions): Promise<void>;
     private generateBaseRouterContent;
     private generateUtilityFunctions;
