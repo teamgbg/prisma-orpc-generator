@@ -1,0 +1,39 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["before 7am on Monday"],
+  "timezone": "Europe/London",
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "automerge": true,
+      "automergeStrategy": "squash"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major"]
+    },
+    {
+      "matchPackagePrefixes": ["@sentry/"],
+      "groupName": "sentry"
+    },
+    {
+      "matchPackagePrefixes": ["prisma", "@prisma/"],
+      "groupName": "prisma"
+    },
+    {
+      "matchPackagePrefixes": ["@tanstack/"],
+      "groupName": "tanstack"
+    },
+    {
+      "matchPackagePrefixes": ["elysia", "@elysiajs/"],
+      "groupName": "elysia"
+    }
+  ]
+}
