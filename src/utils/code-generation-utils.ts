@@ -423,10 +423,10 @@ function generateHandlerCode(
     if (isOrgScoped) {
       handler += `
       // Org scoping - inject organisation_id into data
-      const createData = {
-        ...input.data,
-        organisation_id: ctx.orgId,
-      };
+      // Only override when ctx.orgId is set (skip for superadmin/microservice callers)
+      const createData = ctx.orgId
+        ? { ...input.data, organisation_id: ctx.orgId }
+        : { ...input.data };
       const result = await ctx.prisma.${modelVar}.create({ data: createData } as Prisma.${modelName}CreateArgs);`;
     } else {
       handler += `
@@ -437,9 +437,10 @@ function generateHandlerCode(
     if (isOrgScoped) {
       handler += `
       // Org scoping - inject organisation_id into each data item
+      // Only override when ctx.orgId is set (skip for superadmin/microservice callers)
       const createManyData = Array.isArray(input.data)
-        ? input.data.map((item: any) => ({ ...item, organisation_id: ctx.orgId }))
-        : { ...input.data, organisation_id: ctx.orgId };
+        ? input.data.map((item: any) => ctx.orgId ? { ...item, organisation_id: ctx.orgId } : item)
+        : ctx.orgId ? { ...input.data, organisation_id: ctx.orgId } : input.data;
       const result = await ctx.prisma.${modelVar}.createMany({ data: createManyData } as Prisma.${modelName}CreateManyArgs);`;
     } else {
       handler += `
@@ -514,7 +515,7 @@ function generateHandlerCode(
       }
       const result = await ctx.prisma.${modelVar}.upsert({
         where: upsertWhere,
-        create: { ...input.create, organisation_id: ctx.orgId },
+        create: ctx.orgId ? { ...input.create, organisation_id: ctx.orgId } : { ...input.create },
         update: input.update,
       } as Prisma.${modelName}UpsertArgs);`;
     } else {
