@@ -6,23 +6,23 @@ The project is structured as a monorepo with the core generator logic in the `sr
 
 ## Building and Running
 
-The project uses `pnpm` for package management. Here are the key commands for building, running, and testing the project:
+The project uses `bun` for package management and scripts. Here are the key commands for building, running, and testing the project:
 
 *   **Install dependencies:**
     ```bash
-    pnpm install
+    bun install
     ```
 *   **Build the generator:**
     ```bash
-    pnpm run build
+    bun run build
     ```
 *   **Run tests:**
     ```bash
-    pnpm test
+    bun run test
     ```
 *   **Run the basic example:**
     ```bash
-    pnpm run example:basic
+    bun run example:basic
     ```
 
 ## Development Conventions

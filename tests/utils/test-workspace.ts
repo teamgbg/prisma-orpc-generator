@@ -67,7 +67,7 @@ export default defineConfig({
   }
 
   async generatePrismaClient(configPath: string): Promise<void> {
-    const result = spawnSync('npx', ['prisma', 'generate', '--config', configPath], {
+    const result = spawnSync('bun', ['./node_modules/prisma/build/index.js', 'generate', '--config', configPath], {
       cwd: this.projectRoot,
       stdio: 'pipe',
       encoding: 'utf8'
@@ -85,7 +85,7 @@ export default defineConfig({
     await fs.writeFile(dbPath, '');
     
     // Push schema to create tables
-    const result = spawnSync('npx', ['prisma', 'db', 'push', '--config', configPath], {
+    const result = spawnSync('bun', ['./node_modules/prisma/build/index.js', 'db', 'push', '--config', configPath], {
       cwd: this.projectRoot,
       stdio: 'pipe',
       encoding: 'utf8'
