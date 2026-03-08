@@ -4,3 +4,6 @@ lib
 temp
 temp-*
 debug-output
+
+# Local binaries (Claude CLI, etc.)
+.local/
