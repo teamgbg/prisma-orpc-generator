@@ -420,9 +420,10 @@ export { ${routerName}Procedures };
   }
 
   private getProcedureType(baseOpType: string): 'public' | 'protected' {
-    // Write operations require authentication
-    const protectedOperations = ['create', 'createMany', 'update', 'updateMany', 'delete', 'deleteMany', 'upsert'];
-    return protectedOperations.includes(baseOpType) ? 'protected' : 'public';
+    // All generated CRUD procedures default to protected to prevent unintended data exposure.
+    // To expose a specific route as public, an opt-in mechanism (like a Prisma model comment)
+    // should be added, but for now, everything is protected.
+    return 'protected';
   }
 
   async generateAppRouter(models: PrismaModel[]): Promise<void> {
