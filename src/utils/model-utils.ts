@@ -1,3 +1,10 @@
+/**
+ * Utilities for analyzing Prisma models during generation.
+ *
+ * Extracts relations, constraints, and metadata for generating tailored ORPC
+ * procedures in scala-hub's multi-tenant model routers.
+ */
+
 import { Config } from '../config/schema';
 import type { DMMF } from '@prisma/generator-helper';
 import { FieldKind, PrismaField, PrismaModel } from '../types/generator-types';

@@ -1,13 +1,8 @@
 /**
- * prisma-orpc-generator
- * Prisma generator for oRPC with advanced features
+ * Main entry point and exports for prisma-orpc-generator.
  *
- * This is the main entry point for the generator that creates
- * fully-featured oRPC routers from Prisma schemas with:
- * - Multi-runtime compatibility
- * - Advanced middleware system
- * - Strong type safety
- * - Enhanced developer experience
+ * Provides generator config, utilities, and compatibility checks for producing
+ * ORPC routers integrated into scala-hub's AI tool execution pipeline.
  */
 
 export { Config, configSchema } from './config/schema';

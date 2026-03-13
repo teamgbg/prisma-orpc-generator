@@ -1,0 +1,58 @@
+{
+  "src/bin.ts": {
+    "hash": "b59af33b7b9d86285b1b5a7aab96fac403003065ce39d13903ac37f46e489b90",
+    "generatedAt": "2026-03-13"
+  },
+  "src/config/schema.ts": {
+    "hash": "a8dcf32bc11b6c326d6f0d82c021a804a54d24f477a6025977066415c0d6135c",
+    "generatedAt": "2026-03-13"
+  },
+  "src/generators/code-generator.ts": {
+    "hash": "8a7807583d0df1399c0b2c1f6c158d2b2c08d35d579f44a2fa3a9787145fc76c",
+    "generatedAt": "2026-03-13"
+  },
+  "src/generators/documentation-generator.ts": {
+    "hash": "efab48e97471ecae35a4851e8f713d4b44b196be945bd501bf047c0ba470d758",
+    "generatedAt": "2026-03-13"
+  },
+  "src/generators/orpc-generator.ts": {
+    "hash": "e790ac98c49ff19e14dd6307aacc881297241d8eafe1663e8cd8aea80b303302",
+    "generatedAt": "2026-03-13"
+  },
+  "src/generators/test-generator.ts": {
+    "hash": "7235a84b8b05b9a433a3fa3e77155f18eeb29a9654282bd32f74f42c553246a0",
+    "generatedAt": "2026-03-13"
+  },
+  "src/index.ts": {
+    "hash": "7e6c3902045b11d4a72d6d0af546694f9bd333603eb6ffede473fdbb540af10c",
+    "generatedAt": "2026-03-13"
+  },
+  "src/types/adapters.ts": {
+    "hash": "0569a07f654cc04415ffbd6cfe954780ae757ef98533f69bb032b9c0bc3e5f59",
+    "generatedAt": "2026-03-13"
+  },
+  "src/types/generator-types.ts": {
+    "hash": "819d66f68f045c31466edcd4a77dc33330ee41295e7318616c82997ddc20c742",
+    "generatedAt": "2026-03-13"
+  },
+  "src/utils/code-generation-utils.ts": {
+    "hash": "e88e3c43d01da632775febe62552cf722494844d84370e9ebab5a8b35d83170f",
+    "generatedAt": "2026-03-13"
+  },
+  "src/utils/logger.ts": {
+    "hash": "4c45abcf36e776b4d9e083d55616262fec566fae476c400cbc0d2f0909a4328c",
+    "generatedAt": "2026-03-13"
+  },
+  "src/utils/model-utils.ts": {
+    "hash": "7b993a84a8dc4074685c26662f2181be4cf08d8f41a179e1a6e748116506a1d7",
+    "generatedAt": "2026-03-13"
+  },
+  "src/utils/operation-utils.ts": {
+    "hash": "0d11d823a4bd453e26060890206ee623f215db40384d5cd28235630aad4d19e3",
+    "generatedAt": "2026-03-13"
+  },
+  "src/utils/project-manager.ts": {
+    "hash": "6ca79e6ae54f38f435f3fff7d65768445db8c40847538ed87eb06a693dd3c1c8",
+    "generatedAt": "2026-03-13"
+  }
+}

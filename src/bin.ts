@@ -1,3 +1,10 @@
+/**
+ * Entry point for the Prisma oRPC generator binary.
+ *
+ * Handles CLI flags like --version and --check, then invokes the main generator
+ * as a Prisma plugin, producing ORPC routers for scala-hub's API layer.
+ */
+
 #!/usr/bin/env node
 
 import { generatorHandler } from '@prisma/generator-helper';

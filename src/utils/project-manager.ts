@@ -1,3 +1,10 @@
+/**
+ * Manages TypeScript project and file operations for code generation.
+ *
+ * Handles incremental writes, formatting, and barrel exports for ORPC routers
+ * output to scala-hub's generated/orpc directory.
+ */
+
 import crypto from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';

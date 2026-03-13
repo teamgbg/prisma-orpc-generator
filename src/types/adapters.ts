@@ -1,3 +1,10 @@
+/**
+ * Type definitions for oRPC generator plugins and adapters.
+ *
+ * Defines interfaces for cache, auth, and rate limiting adapters used in
+ * generated routers within scala-hub's ORPC API layer.
+ */
+
 // Adapter & hook interface declarations (quick win scaffolding)
 import type { DMMF } from '@prisma/generator-helper';
 import { Config } from '../config/schema';

@@ -1,3 +1,10 @@
+/**
+ * Generates oRPC router TypeScript code from Prisma models.
+ *
+ * Produces base routers, model-specific procedures, and app router in scala-hub's
+ * ORPC API layer, with support for auth, soft deletes, and Zod validation.
+ */
+
 import { GeneratorOptions } from '@prisma/generator-helper';
 import fs from 'fs';
 import path from 'path';

@@ -1,3 +1,10 @@
+/**
+ * Zod schema defining configuration options for the oRPC generator.
+ *
+ * Validates generator inputs for ORPC router customization, including validation,
+ * model actions, and integration paths like zodSchemasOutputPath for scala-hub.
+ */
+
 import { z } from 'zod';
 
 const configBoolean = z.enum(['true', 'false']).transform((arg) => JSON.parse(arg));

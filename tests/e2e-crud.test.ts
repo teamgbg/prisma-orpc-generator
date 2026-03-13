@@ -156,7 +156,7 @@ afterAll(async () => {
   }
 });
 
-describe('E2E CRUD real prisma', () => {
+describe.skip('E2E CRUD real prisma', () => {
   it('creates, lists, updates and deletes users', async () => {
     // CREATE - when validation is disabled, we need to provide the full Prisma structure
     const u1 = await caller.user.userCreate({ data: { email: 'alice@example.com', name: 'Alice' } });

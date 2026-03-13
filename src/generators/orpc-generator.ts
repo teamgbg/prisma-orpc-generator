@@ -1,3 +1,10 @@
+/**
+ * Main orchestrator for the Prisma oRPC code generator.
+ *
+ * Coordinates schema analysis, code generation, Zod schema integration, and tests
+ * to produce complete ORPC routers for scala-hub's Prisma-backed API endpoints.
+ */
+
 import type { DMMF } from '@prisma/generator-helper';
 import { EnvValue, GeneratorOptions } from '@prisma/generator-helper';
 import { getDMMF, parseEnvValue } from '@prisma/internals';

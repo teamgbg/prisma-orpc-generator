@@ -1,3 +1,10 @@
+/**
+ * Generates Markdown documentation for generated oRPC APIs.
+ *
+ * Creates README and API reference docs in the output directory, aiding scala-hub
+ * developers integrating ORPC routers with AI tool definitions.
+ */
+
 import { promises as fs } from 'fs';
 import path from 'path';
 import { Config } from '../config/schema';

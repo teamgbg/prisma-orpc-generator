@@ -1,3 +1,10 @@
+/**
+ * Generates Vitest unit and integration tests for oRPC routers.
+ *
+ * Produces mock-based tests and utils for model routers, ensuring reliability
+ * in scala-hub's ORPC procedures delegated to scala-hub-tool-mcp.
+ */
+
 import { promises as fs } from 'fs';
 import path from 'path';
 import pluralize from 'pluralize';
