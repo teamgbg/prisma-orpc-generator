@@ -1,8 +1,8 @@
 /**
- * Core type definitions for the oRPC generator internals.
+ * Core type definitions for oRPC generator internals.
  *
- * Prisma model/field types and ORPC context definitions for code generation
- * targeting scala-hub's shared database and AI infrastructure.
+ * Prisma model types and ORPC context for code generation targeting
+ * scala-hub's shared database and AI infrastructure.
  */
 
 export type FieldKind = 'scalar' | 'object' | 'enum';

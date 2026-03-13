@@ -1,8 +1,8 @@
 /**
  * Type definitions for oRPC generator plugins and adapters.
  *
- * Defines interfaces for cache, auth, and rate limiting adapters used in
- * generated routers within scala-hub's ORPC API layer.
+ * Interfaces for cache, auth, and rate limiting in generated routers for
+ * scala-hub's multi-tenant ORPC API layer.
  */
 
 // Adapter & hook interface declarations (quick win scaffolding)

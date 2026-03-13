@@ -1,8 +1,8 @@
 /**
  * Zod schema defining configuration options for the oRPC generator.
  *
- * Validates generator inputs for ORPC router customization, including validation,
- * model actions, and integration paths like zodSchemasOutputPath for scala-hub.
+ * Validates inputs for customizing ORPC routers in scala-hub, including Zod integration
+ * and model actions exposed as AI-executable procedures.
  */
 
 import { z } from 'zod';

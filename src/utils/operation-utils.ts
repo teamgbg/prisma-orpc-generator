@@ -1,8 +1,8 @@
 /**
- * Mappings and checks for Prisma operations to oRPC procedures.
+ * Mappings for Prisma operations to oRPC procedures.
  *
- * Determines input/output types, HTTP methods, and caching eligibility for
- * generated routers powering scala-hub's AI-executable CRUD endpoints.
+ * Determines types, methods, and caching for generated routers powering
+ * scala-hub's AI-executable CRUD endpoints.
  */
 
 import { Config } from '../config/schema';

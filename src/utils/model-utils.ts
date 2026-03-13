@@ -1,8 +1,8 @@
 /**
  * Utilities for analyzing Prisma models during generation.
  *
- * Extracts relations, constraints, and metadata for generating tailored ORPC
- * procedures in scala-hub's multi-tenant model routers.
+ * Extracts relations and metadata for tailored ORPC procedures in
+ * scala-hub's multi-tenant model routers.
  */
 
 import { Config } from '../config/schema';

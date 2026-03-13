@@ -1,8 +1,8 @@
 /**
  * Main entry point and exports for prisma-orpc-generator.
  *
- * Provides generator config, utilities, and compatibility checks for producing
- * ORPC routers integrated into scala-hub's AI tool execution pipeline.
+ * Exposes config, utilities, and compatibility checks for generating ORPC routers
+ * integrated into scala-hub's AI tool execution pipeline.
  */
 
 export { Config, configSchema } from './config/schema';

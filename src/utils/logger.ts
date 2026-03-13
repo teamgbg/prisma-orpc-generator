@@ -1,8 +1,8 @@
 /**
- * Structured logger for the oRPC generator with chalk formatting.
+ * Structured logger for oRPC generator with chalk formatting.
  *
- * Provides leveled logging (error/info/debug) during generation for scala-hub
- * ORPC router builds, respecting ORPC_LOG_LEVEL env vars.
+ * Provides leveled logging during generation of scala-hub ORPC routers,
+ * respecting ORPC_LOG_LEVEL environment variables.
  */
 
 import chalk from 'chalk';

@@ -1,8 +1,8 @@
 /**
  * Utilities for generating oRPC procedure code snippets.
  *
- * Handles imports, context, schema chaining, and handler logic for routers
- * in scala-hub's ORPC procedures serving AI tool calls.
+ * Supports schema chaining and handlers for ORPC procedures in scala-hub
+ * serving AI tool calls via tool-mcp.
  */
 
 import { GeneratorOptions } from '@prisma/generator-helper';
