@@ -1,8 +1,8 @@
 /**
- * Entry point for the Prisma oRPC generator binary.
+ * Entry point for the Prisma oRPC generator binary in scala-hub.
  *
- * Handles CLI flags and invokes the generator as a Prisma plugin, producing ORPC routers
- * for scala-hub's API layer that power AI tool CRUD operations.
+ * Handles CLI flags and invokes generation of ORPC routers from Prisma schema,
+ * powering AI tool CRUD operations delegated to scala-hub-tool-mcp.
  */
 
 #!/usr/bin/env node
