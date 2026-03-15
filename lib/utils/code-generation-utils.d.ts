@@ -1,3 +1,9 @@
+/**
+ * Utilities for generating oRPC procedure code snippets.
+ *
+ * Supports schema chaining and handlers for ORPC procedures in scala-hub
+ * serving AI tool calls via tool-mcp.
+ */
 import { GeneratorOptions } from '@prisma/generator-helper';
 import { SourceFile } from 'ts-morph';
 import { Config } from '../config/schema';

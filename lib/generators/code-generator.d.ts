@@ -1,3 +1,9 @@
+/**
+ * Generates TypeScript code for oRPC routers from Prisma models.
+ *
+ * Produces base routers, model procedures, and app router for scala-hub's ORPC API,
+ * with auth, soft deletes, and validation for AI tool delegation.
+ */
 import { GeneratorOptions } from '@prisma/generator-helper';
 import { Config } from '../config/schema';
 import { PrismaModel } from '../types/generator-types';

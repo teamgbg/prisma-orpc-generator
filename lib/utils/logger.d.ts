@@ -1,3 +1,9 @@
+/**
+ * Structured logger for oRPC generator with chalk formatting.
+ *
+ * Provides leveled logging during generation of scala-hub ORPC routers,
+ * respecting ORPC_LOG_LEVEL environment variables.
+ */
 export declare enum LogLevel {
     ERROR = 0,
     WARN = 1,

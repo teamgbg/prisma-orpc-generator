@@ -1,6 +1,8 @@
 /**
- * Type definitions for the oRPC generator
- * Replaces generic types with proper TypeScript interfaces
+ * Core type definitions for oRPC generator internals.
+ *
+ * Prisma model types and ORPC context for code generation targeting
+ * scala-hub's shared database and AI infrastructure.
  */
 export type FieldKind = 'scalar' | 'object' | 'enum';
 export type FieldType = 'String' | 'Int' | 'Float' | 'Decimal' | 'Boolean' | 'DateTime' | 'Json' | 'Bytes';

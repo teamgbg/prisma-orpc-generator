@@ -1,3 +1,9 @@
+/**
+ * Zod schema defining configuration options for the oRPC generator.
+ *
+ * Validates inputs for customizing ORPC routers in scala-hub, including Zod integration
+ * and model actions exposed as AI-executable procedures.
+ */
 import { z } from 'zod';
 declare const SchemaLibrary: {
     readonly zod: "zod";

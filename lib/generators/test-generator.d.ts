@@ -1,3 +1,9 @@
+/**
+ * Generates Vitest tests for oRPC routers.
+ *
+ * Produces unit and integration tests for model procedures, ensuring reliability
+ * of scala-hub ORPC endpoints in AI tool execution flows.
+ */
 import { Config } from '../config/schema';
 import { PrismaModel } from '../types/generator-types';
 import { Logger } from '../utils/logger';

@@ -1,3 +1,9 @@
+/**
+ * Generates Markdown documentation for oRPC APIs.
+ *
+ * Creates README and reference docs to aid scala-hub developers integrating
+ * generated ORPC routers with AI tool definitions.
+ */
 import { Config } from '../config/schema';
 import { Logger } from '../utils/logger';
 interface DocumentationField {
