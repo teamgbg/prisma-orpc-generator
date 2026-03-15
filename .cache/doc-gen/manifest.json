@@ -1,7 +1,7 @@
 {
   "src/bin.ts": {
-    "hash": "b59af33b7b9d86285b1b5a7aab96fac403003065ce39d13903ac37f46e489b90",
-    "generatedAt": "2026-03-13"
+    "hash": "87ba5ef1ca04fe8ce78703dcfb3ec73a35d63a5f07679b1f4d8f4afe25b44b30",
+    "generatedAt": "2026-03-15"
   },
   "src/config/schema.ts": {
     "hash": "a8dcf32bc11b6c326d6f0d82c021a804a54d24f477a6025977066415c0d6135c",
