@@ -36,6 +36,7 @@ export interface PrismaModel {
         fields: string[];
     }>;
     isGenerated?: boolean;
+    documentation?: string;
 }
 export interface PrismaEnum {
     name: string;

@@ -65,6 +65,7 @@ export function convertDMMFModelToPrismaModel(model: DMMF.Model): PrismaModel {
       })
     ),
     isGenerated: model.isGenerated,
+    documentation: model.documentation || undefined,
   };
 }
 

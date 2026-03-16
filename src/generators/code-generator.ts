@@ -396,7 +396,7 @@ export { ${routerName}Procedures };
     const outputType = getOutputTypeByOpName(baseOpType, modelName);
 
     // Determine procedure type (public/protected)
-    const procedureType = this.getProcedureType(baseOpType);
+    const procedureType = this.getProcedureType(baseOpType, model);
 
     // Compute OpenAPI route (RPC-style): POST /{model}/{exposedName}
     const exposedName = getExposedName(baseOpType);
@@ -429,10 +429,16 @@ export { ${routerName}Procedures };
       : operation;
   }
 
-  private getProcedureType(baseOpType: string): 'public' | 'protected' {
-    // All generated CRUD procedures default to protected to prevent unintended data exposure.
-    // To expose a specific route as public, an opt-in mechanism (like a Prisma model comment)
-    // should be added, but for now, everything is protected.
+  private getProcedureType(baseOpType: string, model?: PrismaModel): 'public' | 'protected' {
+    if (model?.documentation) {
+      const match = model.documentation.match(/@orpc\.public\s+([\w,\s]+)/);
+      if (match) {
+        const publicOps = match[1].split(',').map(s => s.trim().toLowerCase());
+        if (publicOps.includes(baseOpType.toLowerCase())) {
+          return 'public';
+        }
+      }
+    }
     return 'protected';
   }
 
