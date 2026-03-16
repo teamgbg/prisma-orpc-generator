@@ -8,8 +8,8 @@
     "generatedAt": "2026-03-13"
   },
   "src/generators/code-generator.ts": {
-    "hash": "8a7807583d0df1399c0b2c1f6c158d2b2c08d35d579f44a2fa3a9787145fc76c",
-    "generatedAt": "2026-03-13"
+    "hash": "aab03c2dce625eeef2f6b6b42be2fe92b082378e868a188259b3abc873e663fb",
+    "generatedAt": "2026-03-16"
   },
   "src/generators/documentation-generator.ts": {
     "hash": "efab48e97471ecae35a4851e8f713d4b44b196be945bd501bf047c0ba470d758",
@@ -32,8 +32,8 @@
     "generatedAt": "2026-03-13"
   },
   "src/types/generator-types.ts": {
-    "hash": "819d66f68f045c31466edcd4a77dc33330ee41295e7318616c82997ddc20c742",
-    "generatedAt": "2026-03-13"
+    "hash": "d0f199b72d9a150ca79e2f9843befd40913ee319c55cfc5e070f403b798f59f9",
+    "generatedAt": "2026-03-16"
   },
   "src/utils/code-generation-utils.ts": {
     "hash": "e88e3c43d01da632775febe62552cf722494844d84370e9ebab5a8b35d83170f",
@@ -44,8 +44,8 @@
     "generatedAt": "2026-03-13"
   },
   "src/utils/model-utils.ts": {
-    "hash": "7b993a84a8dc4074685c26662f2181be4cf08d8f41a179e1a6e748116506a1d7",
-    "generatedAt": "2026-03-13"
+    "hash": "8e0e069644f18c95e032ad904ce6012e58faf9df946d3be56726226c6fa4f311",
+    "generatedAt": "2026-03-16"
   },
   "src/utils/operation-utils.ts": {
     "hash": "0d11d823a4bd453e26060890206ee623f215db40384d5cd28235630aad4d19e3",
