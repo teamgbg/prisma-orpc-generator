@@ -7,21 +7,8 @@
 import { GeneratorOptions } from '@prisma/generator-helper';
 import { SourceFile } from 'ts-morph';
 import { Config } from '../config/schema';
-interface CodeGenField {
-    name: string;
-    type: string;
-    isId?: boolean;
-    isOptional?: boolean;
-    hasDefaultValue?: boolean;
-    isUpdatedAt?: boolean;
-    relationName?: string;
-    kind?: string;
-    isList?: boolean;
-}
-interface CodeGenModel {
-    name: string;
-    fields: CodeGenField[];
-}
+import { type CodeGenModel } from './operation-handlers';
+export type { CodeGenModel };
 /**
  * Generate oRPC imports for a source file
  */
@@ -55,5 +42,4 @@ export declare function generateProcedureCode(params: {
     config: Config;
     extraDescription?: string;
 }): string;
-export {};
 //# sourceMappingURL=code-generation-utils.d.ts.map

@@ -9,26 +9,27 @@ import { GeneratorOptions } from '@prisma/generator-helper';
 import path from 'path';
 import { SourceFile } from 'ts-morph';
 import { Config } from '../config/schema';
-import { getAvailableAggregations } from './model-utils';
-import { getExposedName, getInputTypeByOpName, getPrismaMethodName } from './operation-utils';
+import { getExposedName, getInputTypeByOpName } from './operation-utils';
+import {
+  generateFindMany,
+  generateFindFirst,
+  generateFindById,
+  generateCreate,
+  generateCreateMany,
+  generateUpdate,
+  generateUpdateMany,
+  generateDelete,
+  generateDeleteMany,
+  generateUpsert,
+  generateCount,
+  generateAggregate,
+  generateGroupBy,
+  type HandlerContext,
+  type CodeGenModel,
+} from './operation-handlers';
 
-// Type interfaces for code generation
-interface CodeGenField {
-  name: string;
-  type: string;
-  isId?: boolean;
-  isOptional?: boolean;
-  hasDefaultValue?: boolean;
-  isUpdatedAt?: boolean;
-  relationName?: string;
-  kind?: string;
-  isList?: boolean;
-}
-
-interface CodeGenModel {
-  name: string;
-  fields: CodeGenField[];
-}
+// Types re-exported from operation-handlers
+export type { CodeGenModel };
 
 /**
  * Generate oRPC imports for a source file
@@ -272,25 +273,42 @@ export function generateProcedureCode(params: {
 }
 
 /**
- * Check if model has organisation_id field (org-scoped)
- */
-function hasOrganisationIdField(model: CodeGenModel): boolean {
-  return !!model?.fields?.some((f: CodeGenField) => f.name === 'organisation_id');
-}
-
-/**
- * Generate handler code for different operations
+ * Generate handler code by dispatching to isolated operation handlers.
+ *
+ * Each operation (findMany, create, delete, etc.) is handled by a dedicated
+ * function in operation-handlers.ts with its own org-scoping and soft-delete logic.
  */
 function generateHandlerCode(
   baseOpType: string,
   modelName: string,
-  operationName: string,
+  _operationName: string,
   config: Config,
   model: CodeGenModel
 ): string {
   const modelVar = modelName.charAt(0).toLowerCase() + modelName.slice(1);
-  const hasDeletedAt = !!model?.fields?.some((f: CodeGenField) => f.name === 'deletedAt');
-  const isOrgScoped = hasOrganisationIdField(model);
+  const hasSoftDelete =
+    (config.enableSoftDeletes || !!model?.fields?.some((f) => f.name === 'deletedAt')) &&
+    !!model?.fields?.some((f) => f.name === 'deletedAt');
+  const isOrgScoped = !!model?.fields?.some((f) => f.name === 'organisation_id');
+
+  const ctx: HandlerContext = { modelName, modelVar, isOrgScoped, hasSoftDelete };
+
+  // Dispatch to the correct operation handler
+  const handlers: Record<string, () => string> = {
+    findMany: () => generateFindMany(ctx),
+    findFirst: () => generateFindFirst(ctx),
+    findUnique: () => generateFindById(ctx),
+    create: () => generateCreate(ctx),
+    createMany: () => generateCreateMany(ctx),
+    update: () => generateUpdate(ctx),
+    updateMany: () => generateUpdateMany(ctx),
+    delete: () => generateDelete(ctx),
+    deleteMany: () => generateDeleteMany(ctx),
+    upsert: () => generateUpsert(ctx),
+    count: () => generateCount(ctx),
+    aggregate: () => generateAggregate(ctx),
+    groupBy: () => generateGroupBy(ctx, model),
+  };
 
   // Base handler structure
   let handler = `async (opt: import('@orpc/server').ProcedureHandlerOptions<Context, unknown, any, any>) => {
@@ -299,313 +317,17 @@ function generateHandlerCode(
     const ctx = context as Context;
     const baseOpType = '${baseOpType}';`;
 
-  // Add the main operation with correct Prisma method calls
-  const prismaMethod = getPrismaMethodName(baseOpType);
-
-  // For soft delete aware reads, inject deletedAt filter lazily
-  if (
-    (config.enableSoftDeletes || hasDeletedAt) &&
-    hasDeletedAt &&
-    ['findFirst', 'findMany', 'count', 'aggregate', 'groupBy'].includes(baseOpType)
-  ) {
-    handler += `
-      // Apply soft-delete filter - input now has proper CRUD schema structure
-  const queryArgs: { where?: { [k: string]: unknown } } = { ...(input as any) };
-      if (!queryArgs.where) queryArgs.where = {};
-      if (queryArgs.where.deletedAt === undefined) {
-        (queryArgs.where as { [k: string]: unknown }).deletedAt = null;
-      }${isOrgScoped ? `
-      // Org scoping - inject organisation_id filter
-      if (ctx.orgId) {
-        (queryArgs.where as { [k: string]: unknown }).organisation_id = ctx.orgId;
-      }` : ''}
-      const result = await ctx.prisma.${modelVar}.${prismaMethod}(queryArgs as unknown);`;
-  } else if (
-    (config.enableSoftDeletes || hasDeletedAt) &&
-    hasDeletedAt &&
-    baseOpType === 'findUnique'
-  ) {
-    handler += `
-      // Ensure soft-deleted records are excluded - input has { where: ... } structure
-  const uniqueArgs = { ...input };
-      if (!uniqueArgs.where) uniqueArgs.where = {};
-      if ((uniqueArgs.where as any).deletedAt === undefined) (uniqueArgs.where as any).deletedAt = null;${isOrgScoped ? `
-      // Org scoping - use findFirst instead of findUnique because organisation_id
-      // is not part of the unique constraint. findUnique would silently return null.
-      if (ctx.orgId) {
-        (uniqueArgs.where as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.findFirst(uniqueArgs);` : `
-      const result = await ctx.prisma.${modelVar}.findUnique(uniqueArgs);`}`;
-  } else if (
-    (config.enableSoftDeletes || hasDeletedAt) &&
-    hasDeletedAt &&
-    baseOpType === 'delete'
-  ) {
-    handler += `
-      // Soft delete via update (set deletedAt) - input has { where: ... } structure${isOrgScoped ? `
-      // Org scoping - ensure user can only delete records in their org
-      const deleteWhere = { ...input.where };
-      if (ctx.orgId) {
-        (deleteWhere as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.update({ where: deleteWhere, data: { deletedAt: new Date() } });` : `
-      const result = await ctx.prisma.${modelVar}.update({ where: input.where, data: { deletedAt: new Date() } });`}`;
-  } else if (
-    (config.enableSoftDeletes || hasDeletedAt) &&
-    hasDeletedAt &&
-    baseOpType === 'deleteMany'
-  ) {
-    handler += `
-      // Soft delete many via updateMany (set deletedAt) - input has { where: ... } structure${isOrgScoped ? `
-      // Org scoping - ensure user can only delete records in their org
-      const deleteManyWhere = { ...(input.where || {}) };
-      if (ctx.orgId) {
-        (deleteManyWhere as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.updateMany({ where: deleteManyWhere, data: { deletedAt: new Date() } });` : `
-      const result = await ctx.prisma.${modelVar}.updateMany({ where: input.where, data: { deletedAt: new Date() } });`}`;
-  } else if (baseOpType === 'groupBy') {
-    // Analyze which aggregations are available for this model
-    const aggregations = getAvailableAggregations(model);
-
-    handler += `
-  type _GroupByArgs = Partial<Prisma.${modelName}GroupByArgs> & { by: Prisma.${modelName}ScalarFieldEnum[] };
-      const args: _GroupByArgs = {} as _GroupByArgs;
-      if (input?.by) (args as any).by = (input.by as any[]).length ? input.by : ['id'];
-      if (input?.where) (args as any).where = input.where as Prisma.${modelName}WhereInput;
-      if (input?.orderBy) (args as any).orderBy = input.orderBy as any;
-      if (input?.having) (args as any).having = input.having as any;
-      if (input?.take) (args as any).take = Math.min(input.take as number, 500);
-      if (input?.skip) (args as any).skip = input.skip as number;`;
-    handler += `
-      if (((args as any).take || (args as any).skip) && !(args as any).orderBy) { (args as any).orderBy = [{ id: 'asc' }] as any; }`;
-
-    // Only include aggregations that are supported by the model
-    if (aggregations.supportsCount) {
-      handler += `
-      if (input?._count) args._count = input._count;`;
-    }
-    if (aggregations.supportsSum) {
-      handler += `
-      if (input?._sum) args._sum = input._sum;`;
-    }
-    if (aggregations.supportsAvg) {
-      handler += `
-      if (input?._avg) args._avg = input._avg;`;
-    }
-    if (aggregations.supportsMin) {
-      handler += `
-      if (input?._min) args._min = input._min;`;
-    }
-    if (aggregations.supportsMax) {
-      handler += `
-      if (input?._max) args._max = input._max;`;
-    }
-
-    // Add org scoping for groupBy
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - inject organisation_id filter
-      if (ctx.orgId) {
-        if (!(args as any).where) (args as any).where = {};
-        (args.where as any).organisation_id = ctx.orgId;
-      }`;
-    }
-
-    handler += `
-  const result = await ctx.prisma.${modelVar}.groupBy(args as any);`;
-  } else if (baseOpType === 'aggregate') {
-    handler += `
-  const aggArgs: { [k: string]: unknown; _count?: unknown; _avg?: unknown; _sum?: unknown; _min?: unknown; _max?: unknown; where?: unknown } = input ? { ...(input as Record<string, unknown>) } : {};
-      if (!aggArgs._count && !aggArgs._avg && !aggArgs._sum && !aggArgs._min && !aggArgs._max) {
-        (aggArgs as { [k: string]: unknown })._count = { _all: true }; // ensure at least one selection to satisfy Prisma
-      }${isOrgScoped ? `
-      // Org scoping - inject organisation_id filter
-      if (ctx.orgId) {
-        if (!aggArgs.where) aggArgs.where = {};
-        (aggArgs.where as any).organisation_id = ctx.orgId;
-      }` : ''}
-      const result = await ctx.prisma.${modelVar}.aggregate(aggArgs as Prisma.${modelName}AggregateArgs);`;
-  } else if (baseOpType === 'create') {
-    // Create operation - inject org_id into data if org-scoped
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - inject organisation_id into data
-      // Only override when ctx.orgId is set (skip for superadmin/microservice callers)
-      const createData = ctx.orgId
-        ? { ...input.data, organisation_id: ctx.orgId }
-        : { ...input.data };
-      const result = await ctx.prisma.${modelVar}.create({ data: createData } as Prisma.${modelName}CreateArgs);`;
-    } else {
-      handler += `
-      const result = await ctx.prisma.${modelVar}.create((input) as Prisma.${modelName}CreateArgs);`;
-    }
-  } else if (baseOpType === 'createMany') {
-    // CreateMany operation - inject org_id into data if org-scoped
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - inject organisation_id into each data item
-      // Only override when ctx.orgId is set (skip for superadmin/microservice callers)
-      const createManyData = Array.isArray(input.data)
-        ? input.data.map((item: any) => ctx.orgId ? { ...item, organisation_id: ctx.orgId } : item)
-        : ctx.orgId ? { ...input.data, organisation_id: ctx.orgId } : input.data;
-      const result = await ctx.prisma.${modelVar}.createMany({ data: createManyData } as Prisma.${modelName}CreateManyArgs);`;
-    } else {
-      handler += `
-      const result = await ctx.prisma.${modelVar}.createMany((input) as Prisma.${modelName}CreateManyArgs);`;
-    }
-  } else if (baseOpType === 'update') {
-    // Update operation - add org filter to where clause
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - ensure user can only update records in their org
-      const updateWhere = { ...input.where };
-      if (ctx.orgId) {
-        (updateWhere as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.update({ where: updateWhere, data: input.data } as Prisma.${modelName}UpdateArgs);`;
-    } else {
-      handler += `
-      const result = await ctx.prisma.${modelVar}.update((input) as Prisma.${modelName}UpdateArgs);`;
-    }
-  } else if (baseOpType === 'updateMany') {
-    // UpdateMany operation - add org filter to where clause
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - ensure user can only update records in their org
-      const updateManyWhere = { ...(input.where || {}) };
-      if (ctx.orgId) {
-        (updateManyWhere as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.updateMany({ where: updateManyWhere, data: input.data } as Prisma.${modelName}UpdateManyArgs);`;
-    } else {
-      handler += `
-      const result = await ctx.prisma.${modelVar}.updateMany((input) as Prisma.${modelName}UpdateManyArgs);`;
-    }
-  } else if (baseOpType === 'delete') {
-    // Delete operation - add org filter to where clause
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - ensure user can only delete records in their org
-      const deleteWhere = { ...input.where };
-      if (ctx.orgId) {
-        (deleteWhere as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.delete({ where: deleteWhere } as Prisma.${modelName}DeleteArgs);`;
-    } else {
-      handler += `
-      // DeleteOneSchema provides { where: ... } structure
-      const result = await ctx.prisma.${modelVar}.delete({ where: input.where } as Prisma.${modelName}DeleteArgs);`;
-    }
-  } else if (baseOpType === 'deleteMany') {
-    // DeleteMany operation - add org filter to where clause
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - ensure user can only delete records in their org
-      const deleteManyWhere = { ...(input.where || {}) };
-      if (ctx.orgId) {
-        (deleteManyWhere as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.deleteMany({ where: deleteManyWhere } as Prisma.${modelName}DeleteManyArgs);`;
-    } else {
-      handler += `
-      // DeleteManySchema provides { where: ... } structure
-      const result = await ctx.prisma.${modelVar}.deleteMany({ where: input.where } as Prisma.${modelName}DeleteManyArgs);`;
-    }
-  } else if (baseOpType === 'upsert') {
-    // Upsert operation - add org filter to where clause and inject into create data
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - ensure user can only upsert records in their org
-      const upsertWhere = { ...input.where };
-      if (ctx.orgId) {
-        (upsertWhere as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.upsert({
-        where: upsertWhere,
-        create: ctx.orgId ? { ...input.create, organisation_id: ctx.orgId } : { ...input.create },
-        update: input.update,
-      } as Prisma.${modelName}UpsertArgs);`;
-    } else {
-      handler += `
-      const result = await ctx.prisma.${modelVar}.upsert((input) as Prisma.${modelName}UpsertArgs);`;
-    }
-  } else if (['findFirst', 'findMany'].includes(baseOpType)) {
-    // Read operations with potential org scoping
-    const opToArgs: Record<string, string> = {
-      findFirst: 'FindFirstArgs',
-      findMany: 'FindManyArgs',
-    };
-    const argsType = opToArgs[baseOpType] || 'FindManyArgs';
-
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - inject organisation_id filter
-      const queryArgs = { ...input };
-      if (!queryArgs.where) queryArgs.where = {};
-      if (ctx.orgId) {
-        (queryArgs.where as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.${prismaMethod}(queryArgs as Prisma.${modelName}${argsType});`;
-    } else {
-      handler += `
-      const result = await ctx.prisma.${modelVar}.${prismaMethod}((input) as Prisma.${modelName}${argsType});`;
-    }
-  } else if (baseOpType === 'findUnique') {
-    // FindUnique (exposed as findById) with potential org scoping.
-    // IMPORTANT: Prisma's findUnique only accepts fields that form a @unique or @id constraint.
-    // organisation_id is NOT part of any unique constraint, so we can't add it to the where clause.
-    // Instead, use findFirst with { id, organisation_id } to enforce org-scoping safely.
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - use findFirst instead of findUnique because organisation_id
-      // is not part of the unique constraint. findUnique would silently return null.
-      const orgWhere = { ...input.where };
-      if (ctx.orgId) {
-        (orgWhere as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.findFirst({ where: orgWhere } as Prisma.${modelName}FindFirstArgs);`;
-    } else {
-      handler += `
-      const result = await ctx.prisma.${modelVar}.findUnique((input) as Prisma.${modelName}FindUniqueArgs);`;
-    }
-  } else if (baseOpType === 'count') {
-    // Count with potential org scoping
-    if (isOrgScoped) {
-      handler += `
-      // Org scoping - inject organisation_id filter
-      const countArgs = { ...input };
-      if (!countArgs.where) countArgs.where = {};
-      if (ctx.orgId) {
-        (countArgs.where as any).organisation_id = ctx.orgId;
-      }
-      const result = await ctx.prisma.${modelVar}.count(countArgs as Prisma.${modelName}CountArgs);`;
-    } else {
-      handler += `
-      const result = await ctx.prisma.${modelVar}.count((input) as Prisma.${modelName}CountArgs);`;
-    }
+  // Append operation-specific code
+  const generate = handlers[baseOpType];
+  if (generate) {
+    handler += generate();
   } else {
-    // Fallback for any other operations
-    const opToArgs: Record<string, string> = {
-      create: 'CreateArgs',
-      createMany: 'CreateManyArgs',
-      findFirst: 'FindFirstArgs',
-      findMany: 'FindManyArgs',
-      findUnique: 'FindUniqueArgs',
-      update: 'UpdateArgs',
-      updateMany: 'UpdateManyArgs',
-      upsert: 'UpsertArgs',
-      delete: 'DeleteArgs',
-      deleteMany: 'DeleteManyArgs',
-      count: 'CountArgs',
-    };
-    const argsType = opToArgs[baseOpType] || 'FindManyArgs';
+    // Fallback for unknown operations
     handler += `
-      const result = await ctx.prisma.${modelVar}.${prismaMethod}((input) as Prisma.${modelName}${argsType});`;
+      const result = await ctx.prisma.${modelVar}.${baseOpType}((input) as any);`;
   }
 
-  // findUnique should throw NOT_FOUND if no result (findById semantic)
+  // findUnique (findById) should throw NOT_FOUND if no result
   if (baseOpType === 'findUnique') {
     handler += `
 
@@ -614,7 +336,7 @@ function generateHandlerCode(
       }`;
   }
 
-  // Return results directly (no wrapper)
+  // Return: count operations wrap in { count }, everything else returns directly
   if (baseOpType === 'count') {
     handler += `
       return { count: result };`;
@@ -628,6 +350,3 @@ function generateHandlerCode(
 
   return handler;
 }
-
-// Helper functions for schema name generation removed as they were unused
-// If needed in the future, they can generate input and output schema names for models
