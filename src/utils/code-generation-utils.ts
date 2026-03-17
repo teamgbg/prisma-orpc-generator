@@ -330,11 +330,13 @@ function generateHandlerCode(
   const uniqueArgs = { ...input };
       if (!uniqueArgs.where) uniqueArgs.where = {};
       if ((uniqueArgs.where as any).deletedAt === undefined) (uniqueArgs.where as any).deletedAt = null;${isOrgScoped ? `
-      // Org scoping - inject organisation_id filter
+      // Org scoping - use findFirst instead of findUnique because organisation_id
+      // is not part of the unique constraint. findUnique would silently return null.
       if (ctx.orgId) {
         (uniqueArgs.where as any).organisation_id = ctx.orgId;
-      }` : ''}
-      const result = await ctx.prisma.${modelVar}.findUnique(uniqueArgs);`;
+      }
+      const result = await ctx.prisma.${modelVar}.findFirst(uniqueArgs);` : `
+      const result = await ctx.prisma.${modelVar}.findUnique(uniqueArgs);`}`;
   } else if (
     (config.enableSoftDeletes || hasDeletedAt) &&
     hasDeletedAt &&
@@ -551,15 +553,19 @@ function generateHandlerCode(
       const result = await ctx.prisma.${modelVar}.${prismaMethod}((input) as Prisma.${modelName}${argsType});`;
     }
   } else if (baseOpType === 'findUnique') {
-    // FindUnique with potential org scoping
+    // FindUnique (exposed as findById) with potential org scoping.
+    // IMPORTANT: Prisma's findUnique only accepts fields that form a @unique or @id constraint.
+    // organisation_id is NOT part of any unique constraint, so we can't add it to the where clause.
+    // Instead, use findFirst with { id, organisation_id } to enforce org-scoping safely.
     if (isOrgScoped) {
       handler += `
-      // Org scoping - inject organisation_id filter for unique lookup
-      const uniqueWhere = { ...input.where };
+      // Org scoping - use findFirst instead of findUnique because organisation_id
+      // is not part of the unique constraint. findUnique would silently return null.
+      const orgWhere = { ...input.where };
       if (ctx.orgId) {
-        (uniqueWhere as any).organisation_id = ctx.orgId;
+        (orgWhere as any).organisation_id = ctx.orgId;
       }
-      const result = await ctx.prisma.${modelVar}.findUnique({ where: uniqueWhere } as Prisma.${modelName}FindUniqueArgs);`;
+      const result = await ctx.prisma.${modelVar}.findFirst({ where: orgWhere } as Prisma.${modelName}FindFirstArgs);`;
     } else {
       handler += `
       const result = await ctx.prisma.${modelVar}.findUnique((input) as Prisma.${modelName}FindUniqueArgs);`;
