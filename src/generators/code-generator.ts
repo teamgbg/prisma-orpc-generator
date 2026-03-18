@@ -70,14 +70,10 @@ export class CodeGenerator {
     sourceFile: SourceFile,
     options: GeneratorOptions
   ): Promise<void> {
-    // Add oRPC imports — only include onError if error handling module is enabled
-    const serverImports = ['os', 'ORPCError'];
-    if (this.isEnabled(this.config.generateErrorHandling)) {
-      serverImports.push('onError');
-    }
+    // Add oRPC imports — onError is only needed in errorHandling.ts, not here
     sourceFile.addImportDeclaration({
       moduleSpecifier: '@orpc/server',
-      namedImports: serverImports,
+      namedImports: ['os', 'ORPCError'],
     });
 
     // Only add zod import if validation is enabled
