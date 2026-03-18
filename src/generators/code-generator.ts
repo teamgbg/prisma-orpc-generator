@@ -70,10 +70,14 @@ export class CodeGenerator {
     sourceFile: SourceFile,
     options: GeneratorOptions
   ): Promise<void> {
-    // Add oRPC imports including onError for centralized error handling
+    // Add oRPC imports — only include onError if error handling module is enabled
+    const serverImports = ['os', 'ORPCError'];
+    if (this.isEnabled(this.config.generateErrorHandling)) {
+      serverImports.push('onError');
+    }
     sourceFile.addImportDeclaration({
       moduleSpecifier: '@orpc/server',
-      namedImports: ['os', 'ORPCError', 'onError'],
+      namedImports: serverImports,
     });
 
     // Only add zod import if validation is enabled
@@ -224,8 +228,11 @@ ${this.generateUtilityFunctions()}
     const modelName = model.name;
     const routerName = pluralize(modelName.toLowerCase());
 
-    // Add imports
-    const baseImports = ['publicProcedure', 'protectedProcedure'];
+    // Add imports — only include publicProcedure if the model uses it
+    const hasPublicOps = !!model.documentation?.match(/@orpc\.public\s+/);
+    const baseImports = hasPublicOps
+      ? ['publicProcedure', 'protectedProcedure']
+      : ['protectedProcedure'];
     if (this.isEnabled(this.config.wrapResponses)) {
       baseImports.push('createSuccessResponse');
     }
