@@ -8,8 +8,8 @@
     "generatedAt": "2026-03-13"
   },
   "src/generators/code-generator.ts": {
-    "hash": "aab03c2dce625eeef2f6b6b42be2fe92b082378e868a188259b3abc873e663fb",
-    "generatedAt": "2026-03-16"
+    "hash": "5a01f6ff1c2ccf2d38c1c9ec54c684aa303216cc03f355c9c832c7a93fc6b30d",
+    "generatedAt": "2026-03-18"
   },
   "src/generators/documentation-generator.ts": {
     "hash": "efab48e97471ecae35a4851e8f713d4b44b196be945bd501bf047c0ba470d758",
@@ -36,7 +36,7 @@
     "generatedAt": "2026-03-16"
   },
   "src/utils/code-generation-utils.ts": {
-    "hash": "ebe60d9227b9c2def20aa72a020c5612a7e1acae4c5033958be20de97cedd0c2",
+    "hash": "32925bd716f312618a830955db3984399116d180c93a885c20f1280233023724",
     "generatedAt": "2026-03-18"
   },
   "src/utils/logger.ts": {

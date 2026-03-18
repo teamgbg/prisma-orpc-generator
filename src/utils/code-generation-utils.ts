@@ -67,27 +67,37 @@ export function generateContextImport(
 ): void {
   // If a contextPath is provided, re-export its Context (optionally widened below)
   if (config.contextPath) {
-    // Compute absolute path to the context file (relative to schema when not absolute)
-    const fileDir = path.dirname(sourceFile.getFilePath());
-    const schemaDir = options.schemaPath ? path.dirname(options.schemaPath) : process.cwd();
-    const absoluteTargetPath = path.isAbsolute(config.contextPath)
-      ? config.contextPath
-      : path.resolve(schemaDir, config.contextPath);
+    // If the path looks like a TypeScript path alias (e.g. @/lib/orpc, @teamgbg/core/...)
+    // or a bare module specifier, use it verbatim — don't resolve it as a filesystem path.
+    const isAlias = config.contextPath.startsWith('@') || (!config.contextPath.startsWith('.') && !config.contextPath.startsWith('/'));
+    let moduleSpecifier: string;
 
-    // Compute relative module specifier from the generated file to the context file
-    let relative = path.relative(fileDir, absoluteTargetPath);
-    // Normalize separators to POSIX for TS module specifiers
-    relative = relative.replace(/\\/g, '/');
-    // Drop .ts extension if present
-    relative = relative.replace(/\.ts$/i, '');
-    // Ensure it starts with './' or '../'
-    if (!relative.startsWith('.') && !relative.startsWith('/')) {
-      relative = `./${relative}`;
+    if (isAlias) {
+      moduleSpecifier = config.contextPath;
+    } else {
+      // Compute absolute path to the context file (relative to schema when not absolute)
+      const fileDir = path.dirname(sourceFile.getFilePath());
+      const schemaDir = options.schemaPath ? path.dirname(options.schemaPath) : process.cwd();
+      const absoluteTargetPath = path.isAbsolute(config.contextPath)
+        ? config.contextPath
+        : path.resolve(schemaDir, config.contextPath);
+
+      // Compute relative module specifier from the generated file to the context file
+      let relative = path.relative(fileDir, absoluteTargetPath);
+      // Normalize separators to POSIX for TS module specifiers
+      relative = relative.replace(/\\/g, '/');
+      // Drop .ts extension if present
+      relative = relative.replace(/\.ts$/i, '');
+      // Ensure it starts with './' or '../'
+      if (!relative.startsWith('.') && !relative.startsWith('/')) {
+        relative = `./${relative}`;
+      }
+      moduleSpecifier = relative;
     }
 
     // Simple pass-through re-export
     sourceFile.addStatements(`
-import type { Context } from '${relative}';
+import type { Context } from '${moduleSpecifier}';
 export type { Context };
 `);
     return;
@@ -240,13 +250,9 @@ export function generateProcedureCode(params: {
   // Add input validation using proper CRUD schemas
   if (config.generateInputValidation && operationSchema) {
     chainParts.push(`.input(${operationSchema})`);
-  } else if (!config.generateInputValidation) {
-    // Preserve type inference for generated clients even when runtime validation is disabled.
-    const inputType = getInputTypeByOpName(baseOpType, modelName);
-    if (inputType) {
-      chainParts.push(`.input<${inputType}>()`);
-    }
   }
+  // When validation is disabled, no .input() call is added.
+  // The handler receives untyped input and casts it via `rawInput as any`.
 
   // Add output validation
   if (config.generateOutputValidation && outputSchemaExpr) {
@@ -314,8 +320,7 @@ function generateHandlerCode(
   let handler = `async (opt: import('@orpc/server').ProcedureHandlerOptions<Context, unknown, any, any>) => {
     const { input: rawInput, context } = opt;
     const input = rawInput as any;
-    const ctx = context as Context;
-    const baseOpType = '${baseOpType}';`;
+    const ctx = context as Context;`;
 
   // Append operation-specific code
   const generate = handlers[baseOpType];

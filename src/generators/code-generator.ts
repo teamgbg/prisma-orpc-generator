@@ -225,7 +225,7 @@ ${this.generateUtilityFunctions()}
     const routerName = pluralize(modelName.toLowerCase());
 
     // Add imports
-    const baseImports = ['or', 'publicProcedure', 'protectedProcedure'];
+    const baseImports = ['publicProcedure', 'protectedProcedure'];
     if (this.isEnabled(this.config.wrapResponses)) {
       baseImports.push('createSuccessResponse');
     }
