@@ -1,8 +1,8 @@
 /**
- * Individual handler generators for each Prisma operation type.
+ * Generators for Prisma operation handler bodies in ORPC procedures.
  *
- * Each function generates the body of an async handler for one operation.
- * Org-scoping and soft-delete are applied via shared helpers, not copy-pasted.
+ * Applies org-scoping and soft-delete logic via shared helpers for CRUD, aggregate, and groupBy
+ * operations in generated routers powering scala-hub's AI tools.
  */
 
 import { getAvailableAggregations } from './model-utils';
