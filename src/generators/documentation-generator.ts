@@ -5,58 +5,58 @@
  * generated ORPC routers with AI tool definitions.
  */
 
-import { promises as fs } from 'fs';
-import path from 'path';
-import { Config } from '../config/schema';
-import { Logger } from '../utils/logger';
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import type { Config } from "../config/schema";
+import type { Logger } from "../utils/logger";
 
 interface DocumentationField {
-  name: string;
-  type: string;
-  isList?: boolean;
-  isOptional?: boolean;
-  isId?: boolean;
-  isUnique?: boolean;
-  isReadOnly?: boolean;
-  hasDefaultValue?: boolean;
-  isUpdatedAt?: boolean;
-  relationName?: string;
-  kind?: string;
-  documentation?: string;
+	name: string;
+	type: string;
+	isList?: boolean;
+	isOptional?: boolean;
+	isId?: boolean;
+	isUnique?: boolean;
+	isReadOnly?: boolean;
+	hasDefaultValue?: boolean;
+	isUpdatedAt?: boolean;
+	relationName?: string;
+	kind?: string;
+	documentation?: string;
 }
 
 interface DocumentationModel {
-  name: string;
-  documentation?: string;
-  fields: DocumentationField[];
+	name: string;
+	documentation?: string;
+	fields: DocumentationField[];
 }
 
 export class DocumentationGenerator {
-  constructor(
-    private config: Config,
-    private outputDir: string,
-    private logger: Logger
-  ) {}
+	constructor(
+		private config: Config,
+		private outputDir: string,
+		private logger: Logger,
+	) {}
 
-  async generateDocumentation(models: DocumentationModel[]): Promise<void> {
-    this.logger.debug('Generating documentation...');
+	async generateDocumentation(models: DocumentationModel[]): Promise<void> {
+		this.logger.debug("Generating documentation...");
 
-    // Ensure documentation directory exists before writing files
-    const docsDir = path.join(this.outputDir, 'documentation');
-    try {
-      await fs.mkdir(docsDir, { recursive: true });
-    } catch {
-      // ignore mkdir errors; subsequent writes will surface issues if any
-    }
+		// Ensure documentation directory exists before writing files
+		const docsDir = path.join(this.outputDir, "documentation");
+		try {
+			await fs.mkdir(docsDir, { recursive: true });
+		} catch {
+			// ignore mkdir errors; subsequent writes will surface issues if any
+		}
 
-    await this.generateReadme(models);
-    await this.generateAPIReference(models);
+		await this.generateReadme(models);
+		await this.generateAPIReference(models);
 
-    this.logger.debug('Documentation generated');
-  }
+		this.logger.debug("Documentation generated");
+	}
 
-  private async generateReadme(models: DocumentationModel[]): Promise<void> {
-    const readmeContent = `# ${this.config.apiTitle}
+	private async generateReadme(models: DocumentationModel[]): Promise<void> {
+		const readmeContent = `# ${this.config.apiTitle}
 
 ${this.config.apiDescription}
 
@@ -89,13 +89,13 @@ This is a simple oRPC API generated from your Prisma schema.
 Your API provides endpoints for the following models:
 
 ${models
-  .map(
-    (model) => `### ${model.name}
+	.map(
+		(model) => `### ${model.name}
 ${model.documentation ? `${model.documentation}` : `Manage ${model.name} records`}
 
 - **Fields**: ${model.fields.length} (${model.fields.filter((f: DocumentationField) => f.isOptional).length} optional)
 - **Relations**: ${model.fields.filter((f: DocumentationField) => f.relationName).length}
-- **Primary Key**: ${model.fields.find((f: DocumentationField) => f.isId)?.name || 'id'}
+- **Primary Key**: ${model.fields.find((f: DocumentationField) => f.isId)?.name || "id"}
 
 **Available Operations:**
 - List all records: \`${model.name.toLowerCase()}FindMany\`
@@ -103,9 +103,9 @@ ${model.documentation ? `${model.documentation}` : `Manage ${model.name} records
 - Create new: \`${model.name.toLowerCase()}Create\`
 - Update existing: \`${model.name.toLowerCase()}Update\`
 - Delete record: \`${model.name.toLowerCase()}Delete\`
-`
-  )
-  .join('\n')}
+`,
+	)
+	.join("\n")}
 
 ## 💻 Usage Examples
 
@@ -118,14 +118,14 @@ import { router } from './generated/orpc/router';
 // Connect your oRPC router to your server framework of choice
 
 ${
-  models.length > 0
-    ? `// Available procedures for ${models[0].name} model:
+	models.length > 0
+		? `// Available procedures for ${models[0].name} model:
 // - ${models[0].name.toLowerCase()}FindMany
 // - ${models[0].name.toLowerCase()}FindUnique  
 // - ${models[0].name.toLowerCase()}Create
 // - ${models[0].name.toLowerCase()}Update
 // - ${models[0].name.toLowerCase()}Delete`
-    : '// Your generated procedures will appear here'
+		: "// Your generated procedures will appear here"
 }
 \`\`\`
 
@@ -176,11 +176,11 @@ Use the generated oRPC router and procedures to interact with your API endpoints
 *Generated with [prisma-orpc-generator](https://github.com/omar-dulaimi/prisma-orpc-generator) ${this.config.apiVersion}*
 `;
 
-    await fs.writeFile(path.join(this.outputDir, 'documentation', 'README.md'), readmeContent);
-  }
+		await fs.writeFile(path.join(this.outputDir, "documentation", "README.md"), readmeContent);
+	}
 
-  private async generateAPIReference(models: DocumentationModel[]): Promise<void> {
-    const apiRefContent = `
+	private async generateAPIReference(models: DocumentationModel[]): Promise<void> {
+		const apiRefContent = `
 # ${this.config.apiTitle} - API Reference
 
 ## Overview
@@ -192,8 +192,8 @@ This document provides detailed information about all available API endpoints.
 ## Models
 
 ${models
-  .map(
-    (model) => `
+	.map(
+		(model) => `
 ### ${model.name}
 
 ${model.documentation || `The ${model.name} model.`}
@@ -201,13 +201,13 @@ ${model.documentation || `The ${model.name} model.`}
 #### Fields
 
 ${model.fields
-  .map(
-    (field: DocumentationField) => `
-- **${field.name}** (${field.type}${field.isList ? '[]' : ''})${field.isOptional ? ' - Optional' : ''}${field.isId ? ' - Primary Key' : ''}${field.isUnique ? ' - Unique' : ''}
-  ${field.documentation ? `  - ${field.documentation}` : ''}
-`
-  )
-  .join('')}
+	.map(
+		(field: DocumentationField) => `
+- **${field.name}** (${field.type}${field.isList ? "[]" : ""})${field.isOptional ? " - Optional" : ""}${field.isId ? " - Primary Key" : ""}${field.isUnique ? " - Unique" : ""}
+  ${field.documentation ? `  - ${field.documentation}` : ""}
+`,
+	)
+	.join("")}
 
 #### Available Operations
 
@@ -217,9 +217,9 @@ ${model.fields
 - \`PUT /${model.name.toLowerCase()}s/{id}\` - Update an existing ${model.name}
 - \`DELETE /${model.name.toLowerCase()}s/{id}\` - Delete a ${model.name}
 
-`
-  )
-  .join('')}
+`,
+	)
+	.join("")}
 
 ## Error Handling
 
@@ -285,117 +285,19 @@ For paginated responses:
 \`\`\`
 `;
 
-    await fs.writeFile(
-      path.join(this.outputDir, 'documentation', 'api-reference.md'),
-      apiRefContent
-    );
-  }
+		await fs.writeFile(
+			path.join(this.outputDir, "documentation", "api-reference.md"),
+			apiRefContent,
+		);
+	}
 
-  private generateSampleData(model: DocumentationModel): Record<string, unknown> {
-    const sampleData: Record<string, unknown> = {};
-
-    for (const field of model.fields) {
-      // Skip fields that shouldn't be provided by clients on create/update samples
-      const isRelationObject = (field.kind && field.kind !== 'scalar') || !!field.relationName;
-      const isList = !!field.isList;
-      const isAuditFieldName = field.name === 'createdAt' || field.name === 'updatedAt';
-
-      if (
-        field.isId ||
-        field.isReadOnly ||
-        field.hasDefaultValue ||
-        field.isUpdatedAt ||
-        isAuditFieldName ||
-        isRelationObject ||
-        isList
-      ) {
-        continue;
-      }
-
-      switch (field.type) {
-        case 'String':
-          sampleData[field.name] = `sample_${field.name}`;
-          break;
-        case 'Int':
-          sampleData[field.name] = 1;
-          break;
-        case 'Float':
-        case 'Decimal':
-          sampleData[field.name] = 1.0;
-          break;
-        case 'Boolean':
-          sampleData[field.name] = true;
-          break;
-        case 'DateTime':
-          sampleData[field.name] = new Date().toISOString();
-          break;
-        default:
-          if (!field.isOptional && (field.kind === 'scalar' || !field.kind)) {
-            sampleData[field.name] = `sample_${field.name}`;
-          }
-      }
-    }
-
-    return sampleData;
-  }
-
-  private generateExampleFields(model: DocumentationModel, forUpdate = false): string[] {
-    const examples: string[] = [];
-
-    for (const field of model.fields) {
-      // Skip fields that shouldn't be provided by clients
-      const isRelationObject = (field.kind && field.kind !== 'scalar') || !!field.relationName;
-      const isList = !!field.isList;
-      const isAuditFieldName = field.name === 'createdAt' || field.name === 'updatedAt';
-
-      if (
-        field.isId ||
-        field.isReadOnly ||
-        field.isUpdatedAt ||
-        isAuditFieldName ||
-        isRelationObject ||
-        isList ||
-        (forUpdate && field.hasDefaultValue)
-      ) {
-        continue;
-      }
-
-      switch (field.type) {
-        case 'String':
-          examples.push(
-            `${field.name}: "${field.name === 'email' ? 'user@example.com' : `sample_${field.name}`}"`
-          );
-          break;
-        case 'Int':
-          examples.push(`${field.name}: 1`);
-          break;
-        case 'Float':
-        case 'Decimal':
-          examples.push(`${field.name}: 1.0`);
-          break;
-        case 'Boolean':
-          examples.push(`${field.name}: true`);
-          break;
-        case 'DateTime':
-          examples.push(`${field.name}: "${new Date().toISOString()}"`);
-          break;
-        default:
-          if (!field.isOptional && (field.kind === 'scalar' || !field.kind)) {
-            examples.push(`${field.name}: "sample_${field.name}"`);
-          }
-      }
-    }
-
-    return examples.slice(0, 5); // Limit to 5 examples for readability
-  }
-
-  private generateConfigDocumentation(): string {
-    return `
+	private generateConfigDocumentation(): string {
+		return `
 ### Server Configuration
 
 - **Port**: ${this.config.serverPort}
-- **API Prefix**: ${this.config.apiPrefix || 'none'}
-- **Base URL**: http://localhost:${this.config.serverPort}${this.config.apiPrefix ? '/' + this.config.apiPrefix : ''}
+- **API Prefix**: ${this.config.apiPrefix || "none"}
+- **Base URL**: http://localhost:${this.config.serverPort}${this.config.apiPrefix ? `/${this.config.apiPrefix}` : ""}
 
 ### Configuration
 
@@ -403,9 +305,9 @@ No additional features are configured.
 
 
 `;
-  }
+	}
 
-  private generateSecurityDocumentation(): string {
-    return 'No additional security features are configured.';
-  }
+	private generateSecurityDocumentation(): string {
+		return "No additional security features are configured.";
+	}
 }

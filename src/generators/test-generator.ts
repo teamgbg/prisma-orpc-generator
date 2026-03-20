@@ -5,46 +5,46 @@
  * of scala-hub ORPC endpoints in AI tool execution flows.
  */
 
-import { promises as fs } from 'fs';
-import path from 'path';
-import pluralize from 'pluralize';
-import { Config } from '../config/schema';
-import { PrismaModel } from '../types/generator-types';
-import { Logger } from '../utils/logger';
-import { ProjectManager } from '../utils/project-manager';
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import pluralize from "pluralize";
+import type { Config } from "../config/schema";
+import type { PrismaModel } from "../types/generator-types";
+import type { Logger } from "../utils/logger";
+import type { ProjectManager } from "../utils/project-manager";
 
 export class TestGenerator {
-  constructor(
-    private config: Config,
-    private outputDir: string,
-    private projectManager: ProjectManager,
-    private logger: Logger
-  ) {}
+	constructor(
+		_config: Config,
+		private outputDir: string,
+		private projectManager: ProjectManager,
+		private logger: Logger,
+	) {}
 
-  async generateTests(models: PrismaModel[]): Promise<void> {
-    this.logger.debug('Generating tests...');
+	async generateTests(models: PrismaModel[]): Promise<void> {
+		this.logger.debug("Generating tests...");
 
-    await this.generateUnitTests(models);
-    await this.generateIntegrationTests(models);
-    await this.generateTestUtils(models);
+		await this.generateUnitTests(models);
+		await this.generateIntegrationTests(models);
+		await this.generateTestUtils(models);
 
-    this.logger.debug('Tests generated');
-  }
+		this.logger.debug("Tests generated");
+	}
 
-  private async generateUnitTests(models: PrismaModel[]): Promise<void> {
-    for (const model of models) {
-      await this.generateModelUnitTests(model);
-    }
-  }
+	private async generateUnitTests(models: PrismaModel[]): Promise<void> {
+		for (const model of models) {
+			await this.generateModelUnitTests(model);
+		}
+	}
 
-  private async generateModelUnitTests(model: PrismaModel): Promise<void> {
-    const testFile = this.projectManager.createSourceFile(
-      path.join(this.outputDir, 'tests', 'unit', `${model.name}.test.ts`),
-      undefined,
-      { overwrite: true }
-    );
+	private async generateModelUnitTests(model: PrismaModel): Promise<void> {
+		const testFile = this.projectManager.createSourceFile(
+			path.join(this.outputDir, "tests", "unit", `${model.name}.test.ts`),
+			undefined,
+			{ overwrite: true },
+		);
 
-    testFile.addStatements(`
+		testFile.addStatements(`
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ${pluralize(model.name.toLowerCase())}Router as modelRouter } from '../../routers/models/${model.name}.router';
 import { createMockContext, MockContext } from '../utils/mock-context';
@@ -158,17 +158,17 @@ describe('${model.name} Router', () => {
 });
 `);
 
-    testFile.formatText({ indentSize: 2 });
-  }
+		testFile.formatText({ indentSize: 2 });
+	}
 
-  private async generateIntegrationTests(models: PrismaModel[]): Promise<void> {
-    const integrationTestFile = this.projectManager.createSourceFile(
-      path.join(this.outputDir, 'tests', 'integration', 'api.test.ts'),
-      undefined,
-      { overwrite: true }
-    );
+	private async generateIntegrationTests(models: PrismaModel[]): Promise<void> {
+		const integrationTestFile = this.projectManager.createSourceFile(
+			path.join(this.outputDir, "tests", "integration", "api.test.ts"),
+			undefined,
+			{ overwrite: true },
+		);
 
-    integrationTestFile.addStatements(`
+		integrationTestFile.addStatements(`
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { createORPCClient } from '@orpc/client';
 import { appRouter, type AppRouter } from '../../routers';
@@ -205,8 +205,8 @@ describe('API Integration Tests', () => {
   });
 
 ${models
-  .map(
-    (model) => `
+	.map(
+		(model) => `
   describe('${model.name} API', () => {
     it('should create, read, update, and delete ${model.name}', async () => {
       // Create
@@ -243,9 +243,9 @@ ${models
       // expect(result.success).toBe(true);
       // expect(result.meta.pagination).toBeDefined();
     });
-  });`
-  )
-  .join('\n')}
+  });`,
+	)
+	.join("\n")}
 
   describe('Error Handling', () => {
     it('should return proper error format for validation errors', async () => {
@@ -261,27 +261,27 @@ ${models
 });
 `);
 
-    integrationTestFile.formatText({ indentSize: 2 });
-  }
+		integrationTestFile.formatText({ indentSize: 2 });
+	}
 
-  private async generateTestUtils(models: PrismaModel[]): Promise<void> {
-    await this.generateMockContext(models);
-    await this.generateTestServer();
-    await this.generateVitestConfig();
-    await this.generateTsProjectConfig();
-    await this.generateTestTypes();
-    await this.generateTestSetup();
-  }
+	private async generateTestUtils(models: PrismaModel[]): Promise<void> {
+		await this.generateMockContext(models);
+		await this.generateTestServer();
+		await this.generateVitestConfig();
+		await this.generateTsProjectConfig();
+		await this.generateTestTypes();
+		await this.generateTestSetup();
+	}
 
-  private async generateMockContext(models: PrismaModel[]): Promise<void> {
-    // Generate mock context
-    const mockContextFile = this.projectManager.createSourceFile(
-      path.join(this.outputDir, 'tests', 'utils', 'mock-context.ts'),
-      undefined,
-      { overwrite: true }
-    );
+	private async generateMockContext(models: PrismaModel[]): Promise<void> {
+		// Generate mock context
+		const mockContextFile = this.projectManager.createSourceFile(
+			path.join(this.outputDir, "tests", "utils", "mock-context.ts"),
+			undefined,
+			{ overwrite: true },
+		);
 
-    mockContextFile.addStatements(`
+		mockContextFile.addStatements(`
 import { vi } from 'vitest';
 
 export interface MockPrismaClient {
@@ -330,7 +330,7 @@ export function createMockContext(): MockContext {
  * Create a mock Prisma client
  */
 function createMockPrisma(): MockPrismaClient {
-  const models = [${models.map((m) => `'${m.name.toLowerCase()}'`).join(', ')}];
+  const models = [${models.map((m) => `'${m.name.toLowerCase()}'`).join(", ")}];
   const mockPrisma: MockPrismaClient = {};
   
   for (const model of models) {
@@ -353,16 +353,16 @@ function createMockPrisma(): MockPrismaClient {
   return mockPrisma;
 }
 `);
-  }
+	}
 
-  private async generateTestServer(): Promise<void> {
-    const testServerFile = this.projectManager.createSourceFile(
-      path.join(this.outputDir, 'tests', 'utils', 'test-server.ts'),
-      undefined,
-      { overwrite: true }
-    );
+	private async generateTestServer(): Promise<void> {
+		const testServerFile = this.projectManager.createSourceFile(
+			path.join(this.outputDir, "tests", "utils", "test-server.ts"),
+			undefined,
+			{ overwrite: true },
+		);
 
-    testServerFile.addStatements(`
+		testServerFile.addStatements(`
 import { createServer } from 'http';
  
 /**
@@ -401,10 +401,10 @@ export async function createTestServer(_router: any): Promise<TestServer> {
   });
 }
 `);
-  }
+	}
 
-  private async generateVitestConfig(): Promise<void> {
-    const vitestConfig = `import { defineConfig } from 'vitest/config';
+	private async generateVitestConfig(): Promise<void> {
+		const vitestConfig = `import { defineConfig } from 'vitest/config';
  import path from 'path';
  import { fileURLToPath } from 'url';
  
@@ -424,11 +424,11 @@ export async function createTestServer(_router: any): Promise<TestServer> {
    }
  });`;
 
-    await fs.writeFile(path.join(this.outputDir, 'vitest.config.ts'), vitestConfig);
-  }
+		await fs.writeFile(path.join(this.outputDir, "vitest.config.ts"), vitestConfig);
+	}
 
-  private async generateTsProjectConfig(): Promise<void> {
-    const tsconfig = `{
+	private async generateTsProjectConfig(): Promise<void> {
+		const tsconfig = `{
    "compilerOptions": {
      "target": "ES2022",
      "module": "ESNext",
@@ -450,31 +450,31 @@ export async function createTestServer(_router: any): Promise<TestServer> {
      "zod-schemas/**/*.ts"
    ]
   }`;
-    await fs.writeFile(path.join(this.outputDir, 'tsconfig.json'), tsconfig);
-  }
+		await fs.writeFile(path.join(this.outputDir, "tsconfig.json"), tsconfig);
+	}
 
-  private async generateTestTypes(): Promise<void> {
-    const file = this.projectManager.createSourceFile(
-      path.join(this.outputDir, 'tests', 'global.d.ts'),
-      undefined,
-      { overwrite: true }
-    );
-    file.addStatements(`export {};
+	private async generateTestTypes(): Promise<void> {
+		const file = this.projectManager.createSourceFile(
+			path.join(this.outputDir, "tests", "global.d.ts"),
+			undefined,
+			{ overwrite: true },
+		);
+		file.addStatements(`export {};
 declare global {
   // eslint-disable-next-line no-var
   var testUtils: { [key: string]: unknown };
 }
 `);
-  }
+	}
 
-  private async generateTestSetup(): Promise<void> {
-    const setupFile = this.projectManager.createSourceFile(
-      path.join(this.outputDir, 'tests', 'setup.ts'),
-      undefined,
-      { overwrite: true }
-    );
+	private async generateTestSetup(): Promise<void> {
+		const setupFile = this.projectManager.createSourceFile(
+			path.join(this.outputDir, "tests", "setup.ts"),
+			undefined,
+			{ overwrite: true },
+		);
 
-    setupFile.addStatements(`export {};
+		setupFile.addStatements(`export {};
 /**
  * Vitest test setup
  */
@@ -494,56 +494,56 @@ process.env.NODE_ENV = 'test';
 //   error: vi.fn(),
 // };
 `);
-  }
+	}
 
-  private generateTimestampFields(): string {
-    return 'createdAt: new Date(), updatedAt: new Date()';
-  }
+	private generateTimestampFields(): string {
+		return "createdAt: new Date(), updatedAt: new Date()";
+	}
 
-  private generateTestData(
-    model: PrismaModel,
-    seed: number = 1,
-    isUpdate: boolean = false,
-    skipTimestamps: boolean = false
-  ): Record<string, unknown> {
-    const data: Record<string, unknown> = {};
+	private generateTestData(
+		model: PrismaModel,
+		seed: number = 1,
+		isUpdate: boolean = false,
+		skipTimestamps: boolean = false,
+	): Record<string, unknown> {
+		const data: Record<string, unknown> = {};
 
-    for (const field of model.fields) {
-      if (field.isId && !isUpdate) continue;
-      if (field.isReadOnly) continue;
-      if (isUpdate && field.isId) continue;
-      if (skipTimestamps && (field.name === 'createdAt' || field.name === 'updatedAt')) continue;
+		for (const field of model.fields) {
+			if (field.isId && !isUpdate) continue;
+			if (field.isReadOnly) continue;
+			if (isUpdate && field.isId) continue;
+			if (skipTimestamps && (field.name === "createdAt" || field.name === "updatedAt")) continue;
 
-      switch (field.type) {
-        case 'String':
-          if (field.name.toLowerCase().includes('email')) {
-            data[field.name] = `test${seed}@example.com`;
-          } else if (field.name.toLowerCase().includes('name')) {
-            data[field.name] = `Test ${field.name} ${seed}`;
-          } else {
-            data[field.name] = `test_${field.name}_${seed}`;
-          }
-          break;
-        case 'Int':
-          data[field.name] = seed;
-          break;
-        case 'Float':
-        case 'Decimal':
-          data[field.name] = seed * 1.5;
-          break;
-        case 'Boolean':
-          data[field.name] = seed % 2 === 0;
-          break;
-        case 'DateTime':
-          data[field.name] = new Date().toISOString();
-          break;
-        default:
-          if (!field.isOptional) {
-            data[field.name] = `test_${field.name}_${seed}`;
-          }
-      }
-    }
+			switch (field.type) {
+				case "String":
+					if (field.name.toLowerCase().includes("email")) {
+						data[field.name] = `test${seed}@example.com`;
+					} else if (field.name.toLowerCase().includes("name")) {
+						data[field.name] = `Test ${field.name} ${seed}`;
+					} else {
+						data[field.name] = `test_${field.name}_${seed}`;
+					}
+					break;
+				case "Int":
+					data[field.name] = seed;
+					break;
+				case "Float":
+				case "Decimal":
+					data[field.name] = seed * 1.5;
+					break;
+				case "Boolean":
+					data[field.name] = seed % 2 === 0;
+					break;
+				case "DateTime":
+					data[field.name] = new Date().toISOString();
+					break;
+				default:
+					if (!field.isOptional) {
+						data[field.name] = `test_${field.name}_${seed}`;
+					}
+			}
+		}
 
-    return data;
-  }
+		return data;
+	}
 }
