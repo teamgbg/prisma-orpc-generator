@@ -1,13 +1,9 @@
 /**
- * Zod schema defining configuration options for the oRPC generator.
+ * Configuration options for the oRPC generator.
  *
- * Validates inputs for customizing ORPC routers in scala-hub, including Zod integration
- * and model actions exposed as AI-executable procedures.
+ * Validates inputs for customizing ORPC routers in scala-hub.
+ * Parsed from Prisma generator config (Record<string, string | string[]>).
  */
-import { z } from 'zod';
-declare const SchemaLibrary: {
-    readonly zod: "zod";
-};
 declare const ModelAction: {
     readonly create: "create";
     readonly createMany: "createMany";
@@ -27,81 +23,31 @@ declare const ModelAction: {
     readonly findRaw: "findRaw";
     readonly aggregateRaw: "aggregateRaw";
 };
-export declare const configSchema: z.ZodObject<{
-    output: z.ZodDefault<z.ZodString>;
-    contextPath: z.ZodDefault<z.ZodString>;
-    schemaLibrary: z.ZodDefault<z.ZodEnum<{
-        readonly zod: "zod";
-    }>>;
-    generateInputValidation: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    generateOutputValidation: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    strictValidation: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    zodSchemasOutputPath: z.ZodDefault<z.ZodString>;
-    externalZodImportPath: z.ZodDefault<z.ZodString>;
-    zodDateTimeStrategy: z.ZodDefault<z.ZodEnum<{
-        date: "date";
-        coerce: "coerce";
-        isoString: "isoString";
-    }>>;
-    zodConfigPath: z.ZodOptional<z.ZodString>;
-    apiTitle: z.ZodDefault<z.ZodString>;
-    apiDescription: z.ZodDefault<z.ZodString>;
-    apiVersion: z.ZodDefault<z.ZodString>;
-    serverPort: z.ZodDefault<z.ZodPipe<z.ZodPipe<z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>, z.ZodTransform<number, string | number>>, z.ZodNumber>>;
-    apiPrefix: z.ZodDefault<z.ZodString>;
-    generateModelActions: z.ZodDefault<z.ZodPipe<z.ZodPipe<z.ZodPipe<z.ZodUnion<readonly [z.ZodArray<z.ZodType<unknown, unknown, z.core.$ZodTypeInternals<unknown, unknown>>>, z.ZodString]>, z.ZodTransform<unknown[], string | unknown[]>>, z.ZodArray<z.ZodType<unknown, unknown, z.core.$ZodTypeInternals<unknown, unknown>>>>, z.ZodTransform<string[], unknown[]>>>;
-    showModelNameInProcedure: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    enableSoftDeletes: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    generateRelationResolvers: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    generateDocumentation: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    generateTests: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    enableDebugLogging: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    useBarrelExports: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    codeStyle: z.ZodDefault<z.ZodEnum<{
-        prettier: "prettier";
-        none: "none";
-    }>>;
-    wrapResponses: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    generateErrorHandling: z.ZodDefault<z.ZodPipe<z.ZodEnum<{
-        true: "true";
-        false: "false";
-    }>, z.ZodTransform<any, "true" | "false">>>;
-    prismaClientPath: z.ZodDefault<z.ZodString>;
-}, z.core.$strip>;
-export type Config = z.infer<typeof configSchema>;
+export interface Config {
+    output: string;
+    contextPath: string;
+    generateInputValidation: boolean;
+    generateOutputValidation: boolean;
+    strictValidation: boolean;
+    apiTitle: string;
+    apiDescription: string;
+    apiVersion: string;
+    serverPort: number;
+    apiPrefix: string;
+    generateModelActions: string[];
+    showModelNameInProcedure: boolean;
+    enableSoftDeletes: boolean;
+    generateRelationResolvers: boolean;
+    generateDocumentation: boolean;
+    generateTests: boolean;
+    enableDebugLogging: boolean;
+    useBarrelExports: boolean;
+    codeStyle: "prettier" | "none";
+    wrapResponses: boolean;
+    generateErrorHandling: boolean;
+    prismaClientPath: string;
+}
+export declare function parseConfig(raw: Record<string, string | string[]>): Config;
 export declare const defaultConfigs: {
     readonly basic: {};
     readonly production: {};
@@ -110,5 +56,5 @@ export declare const defaultConfigs: {
         readonly generateTests: "true";
     };
 };
-export { ModelAction, SchemaLibrary };
+export { ModelAction };
 //# sourceMappingURL=schema.d.ts.map

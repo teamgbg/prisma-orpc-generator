@@ -447,7 +447,6 @@ export async function createTestServer(_router: any): Promise<TestServer> {
      "tests/**/*.ts",
      "types/**/*.ts",
      "utils/**/*.ts",
-     "zod-schemas/**/*.ts"
    ]
   }`;
 		await fs.writeFile(path.join(this.outputDir, "tsconfig.json"), tsconfig);

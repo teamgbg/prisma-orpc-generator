@@ -224,7 +224,6 @@ export class ProjectManager {
 			dependencies: {
 				"@orpc/server": "^1.11.3",
 				"@prisma/client": "^7.0.0",
-				zod: "^4.1.12",
 			},
 			peerDependencies: {
 				"@prisma/client": ">=7.0.0",

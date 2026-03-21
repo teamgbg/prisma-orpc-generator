@@ -77,7 +77,6 @@ export interface GeneratorContext {
 
 export type AuthenticationStrategy = "none" | "jwt" | "apikey" | "oauth" | "custom";
 export type CacheStrategy = "none" | "memory" | "redis" | "custom";
-export type SchemaLibrary = "zod" | "yup" | "joi";
 export type RuntimeTarget = "node" | "edge" | "deno" | "bun";
 
 export interface RequestInfo {

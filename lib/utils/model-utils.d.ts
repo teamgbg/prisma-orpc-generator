@@ -4,9 +4,9 @@
  * Extracts relations and metadata for tailored ORPC procedures in
  * scala-hub's multi-tenant model routers.
  */
-import { Config } from '../config/schema';
-import type { DMMF } from '@prisma/generator-helper';
-import { PrismaModel } from '../types/generator-types';
+import type { DMMF } from "@prisma/generator-helper";
+import type { Config } from "../config/schema";
+import type { PrismaModel } from "../types/generator-types";
 interface ValidationConstraint {
     required?: boolean;
     maxLength?: number;

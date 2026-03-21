@@ -5,8 +5,8 @@
  * integrated into scala-hub's AI tool execution pipeline.
  */
 
-export type { Config as GeneratorConfig, ModelAction, SchemaLibrary } from "./config/schema";
-export { Config, configSchema } from "./config/schema";
+export type { Config as GeneratorConfig, Config, ModelAction } from "./config/schema";
+export { parseConfig } from "./config/schema";
 export { generate } from "./generators/orpc-generator";
 
 // Re-export utilities for advanced usage
@@ -55,7 +55,6 @@ export const GENERATOR_METADATA = {
 	keywords: ["prisma", "orpc", "generator", "typescript", "api", "rpc", "type-safe", "codegen"],
 	capabilities: [
 		"Advanced oRPC router generation",
-		"Zod schema validation with full type safety",
 		"Comprehensive middleware system",
 		"Interactive documentation",
 		"Test generation",

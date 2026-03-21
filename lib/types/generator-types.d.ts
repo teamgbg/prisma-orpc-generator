@@ -4,8 +4,8 @@
  * Prisma model types and ORPC context for code generation targeting
  * scala-hub's shared database and AI infrastructure.
  */
-export type FieldKind = 'scalar' | 'object' | 'enum';
-export type FieldType = 'String' | 'Int' | 'Float' | 'Decimal' | 'Boolean' | 'DateTime' | 'Json' | 'Bytes';
+export type FieldKind = "scalar" | "object" | "enum";
+export type FieldType = "String" | "Int" | "Float" | "Decimal" | "Boolean" | "DateTime" | "Json" | "Bytes";
 export interface PrismaField {
     name: string;
     type: string;
@@ -61,10 +61,9 @@ export interface GeneratorContext {
         };
     };
 }
-export type AuthenticationStrategy = 'none' | 'jwt' | 'apikey' | 'oauth' | 'custom';
-export type CacheStrategy = 'none' | 'memory' | 'redis' | 'custom';
-export type SchemaLibrary = 'zod' | 'yup' | 'joi';
-export type RuntimeTarget = 'node' | 'edge' | 'deno' | 'bun';
+export type AuthenticationStrategy = "none" | "jwt" | "apikey" | "oauth" | "custom";
+export type CacheStrategy = "none" | "memory" | "redis" | "custom";
+export type RuntimeTarget = "node" | "edge" | "deno" | "bun";
 export interface RequestInfo {
     ip?: string;
     headers?: Record<string, string>;

@@ -4,8 +4,8 @@
  * Handles incremental writes and formatting for ORPC routers output to
  * scala-hub's generated/orpc directory.
  */
-import { Project, SourceFile } from 'ts-morph';
-import { Config } from '../config/schema';
+import { Project, type SourceFile } from "ts-morph";
+import type { Config } from "../config/schema";
 export declare class ProjectManager {
     private outputDir;
     private project;

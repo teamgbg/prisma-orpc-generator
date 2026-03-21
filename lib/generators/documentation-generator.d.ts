@@ -4,8 +4,8 @@
  * Creates README and reference docs to aid scala-hub developers integrating
  * generated ORPC routers with AI tool definitions.
  */
-import { Config } from '../config/schema';
-import { Logger } from '../utils/logger';
+import type { Config } from "../config/schema";
+import type { Logger } from "../utils/logger";
 interface DocumentationField {
     name: string;
     type: string;
@@ -33,8 +33,6 @@ export declare class DocumentationGenerator {
     generateDocumentation(models: DocumentationModel[]): Promise<void>;
     private generateReadme;
     private generateAPIReference;
-    private generateSampleData;
-    private generateExampleFields;
     private generateConfigDocumentation;
     private generateSecurityDocumentation;
 }

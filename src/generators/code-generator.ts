@@ -13,11 +13,7 @@ import type { SourceFile } from "ts-morph";
 import type { Config } from "../config/schema";
 import type { PrismaField, PrismaModel } from "../types/generator-types";
 import { AUTOGEN_HEADER } from "../utils/autogen-header";
-import {
-	generateContextImport,
-	generateProcedureCode,
-	generateSchemaImports,
-} from "../utils/code-generation-utils";
+import { generateContextImport, generateProcedureCode } from "../utils/code-generation-utils";
 import type { Logger } from "../utils/logger";
 import {
 	getExposedName,
@@ -74,16 +70,6 @@ export class CodeGenerator {
 			moduleSpecifier: "@orpc/server",
 			namedImports: ["os", "ORPCError"],
 		});
-
-		// Only add zod import if validation is enabled
-		if (this.config.generateInputValidation || this.config.generateOutputValidation) {
-			sourceFile.addImportDeclaration({
-				moduleSpecifier: "zod",
-				namedImports: ["z"],
-			});
-		}
-
-		// Note: Removed dependency on prisma-error-mapper utility for simpler centralized error handling
 
 		// Add context import
 		generateContextImport(sourceFile, this.outputDir, this.config, options);
@@ -259,10 +245,6 @@ ${this.generateUtilityFunctions()}
 		// Note: Prisma error handling is now centralized in base procedure
 		// No need to import PrismaClientKnownRequestError or mapPrismaErrorToHttp in individual routers
 
-		if (this.config.generateInputValidation || this.config.generateOutputValidation) {
-			generateSchemaImports(sourceFile, modelName, this.config);
-		}
-
 		// Generate procedures
 		let procedures = await this.generateModelProcedures(model, modelOperations);
 
@@ -301,19 +283,13 @@ export { ${routerName}Procedures };
 				const relName = field.name;
 				const procedureName = `${modelVar}${this.capitalize(relName)}`;
 
-				// Only use z.object if validation is enabled
-				const inputPart =
-					this.config.generateInputValidation || this.config.generateOutputValidation
-						? `.input(z.object({ id: z.string() }))`
-						: "";
-
 				return `  /**
    * ${procedureName} - relation resolver for ${modelName}.${relName}
    */
-  ${procedureName}: publicProcedure${inputPart}
-    .handler(async (opt: import('@orpc/server').ProcedureHandlerOptions<Context, ${inputPart ? "{ id: string }" : "unknown"}, any, any>) => {
+  ${procedureName}: publicProcedure
+    .handler(async (opt: import('@orpc/server').ProcedureHandlerOptions<Context, unknown, any, any>) => {
       const { input, context } = opt;
-      const id = ${inputPart ? "input.id" : "(input as any)?.id"};
+      const id = (input as any)?.id;
       const related = await context.prisma.${modelVar}.findUnique({
         where: { id }
       }).${relName}();

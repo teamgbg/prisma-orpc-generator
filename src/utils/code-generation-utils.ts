@@ -50,10 +50,6 @@ export function generateORPCImports(sourceFile: SourceFile): void {
 		});
 	}
 
-	// Do not import @orpc/zod plugin (oz). Validation schemas are handled directly per-operation.
-
-	// Additional imports based on configuration - currently disabled to avoid config type issues
-	// These can be enabled when the config schema includes the necessary properties
 }
 
 /**
@@ -110,66 +106,6 @@ export type { Context };
 }
 
 /**
- * Generate schema imports based on validation library
- */
-export function generateSchemaImports(
-	sourceFile: SourceFile,
-	modelName: string,
-	config: Config,
-): void {
-	if (!config.generateInputValidation && !config.generateOutputValidation) return;
-
-	// Add zod import (only supported schema library)
-	if (!sourceFile.getImportDeclaration((d) => d.getModuleSpecifierValue() === "zod")) {
-		sourceFile.addImportDeclaration({
-			moduleSpecifier: "zod",
-			namedImports: ["z"],
-		});
-	}
-
-	// Import generated schemas (zod only)
-	// Use configured external import path (defaults to './zod-schemas'), and prefer '/schemas' index
-	const externalBase =
-		config.externalZodImportPath || config.zodSchemasOutputPath || "./zod-schemas";
-	// Determine module specifier relative to the generated file
-	const fileDir = path.dirname(sourceFile.getFilePath());
-	let zodModule: string;
-	if (externalBase.startsWith(".") || externalBase.startsWith("/")) {
-		const outputRoot = path.resolve(fileDir, "..", ".."); // routers/models -> output root
-		const abs = path.resolve(outputRoot, externalBase, "schemas", "index");
-		let rel = path.relative(fileDir, abs).replace(/\\/g, "/");
-		if (!rel.startsWith(".")) rel = `./${rel}`;
-		zodModule = rel;
-	} else {
-		// Bare module specifier, append '/schemas/index' to be bundler-friendly
-		zodModule = `${externalBase}/schemas/index`;
-	}
-
-	if (config.generateInputValidation) {
-		// Import CRUD operation schemas instead of generic input schemas
-		sourceFile.addImportDeclaration({
-			moduleSpecifier: zodModule,
-			namedImports: [
-				`${modelName}FindManySchema`,
-				`${modelName}FindFirstSchema`,
-				`${modelName}FindUniqueSchema`,
-				`${modelName}CreateOneSchema`,
-				`${modelName}CreateManySchema`,
-				`${modelName}UpdateOneSchema`,
-				`${modelName}UpdateManySchema`,
-				`${modelName}DeleteOneSchema`,
-				`${modelName}DeleteManySchema`,
-				`${modelName}GroupBySchema`,
-				`${modelName}AggregateSchema`,
-				`${modelName}CountSchema`,
-			],
-		});
-
-		// No need for aliases - use the CRUD schemas directly
-	}
-}
-
-/**
  * Generate procedure code with enhanced features
  */
 export function generateProcedureCode(params: {
@@ -186,80 +122,12 @@ export function generateProcedureCode(params: {
 	config: Config;
 	extraDescription?: string;
 }): string {
-	const { name, operationName, outputType, procedureType, modelName, baseOpType, config } = params;
+	const { name, operationName, procedureType, modelName, baseOpType, config } = params;
 
 	const procedure = procedureType === "public" ? "publicProcedure" : "protectedProcedure";
-	// Build output schema expression for zod
-	let outputSchemaExpr: string | undefined;
-	if (config.generateOutputValidation && config.schemaLibrary === "zod") {
-		// Use conservative, always-available schemas to avoid depending on non-standard exports
-		if (baseOpType === "groupBy") outputSchemaExpr = "z.unknown()";
-		else if (baseOpType === "aggregate") outputSchemaExpr = "z.unknown()";
-		else if (["createMany", "updateMany", "deleteMany", "count"].includes(baseOpType))
-			outputSchemaExpr = "z.object({ count: z.number().int().nonnegative() })";
-		else if (baseOpType === "findMany") outputSchemaExpr = "z.array(z.unknown())";
-		else outputSchemaExpr = "z.unknown()";
-	} else if (config.generateOutputValidation && outputType) {
-		outputSchemaExpr = `${outputType}Schema`;
-	}
 
-	// Build procedure chain
+	// Build procedure chain — no .input() or .output() validation (validation removed)
 	const chainParts = [procedure];
-
-	// Note: Primary key detection and helper functions removed as unused
-
-	// Map operations to their proper CRUD schemas
-	let operationSchema: string | undefined;
-	switch (baseOpType) {
-		case "findMany":
-			operationSchema = `${modelName}FindManySchema`;
-			break;
-		case "findFirst":
-			operationSchema = `${modelName}FindFirstSchema`;
-			break;
-		case "findUnique":
-			operationSchema = `${modelName}FindUniqueSchema`;
-			break;
-		case "create":
-			operationSchema = `${modelName}CreateOneSchema`;
-			break;
-		case "createMany":
-			operationSchema = `${modelName}CreateManySchema`;
-			break;
-		case "update":
-			operationSchema = `${modelName}UpdateOneSchema`;
-			break;
-		case "updateMany":
-			operationSchema = `${modelName}UpdateManySchema`;
-			break;
-		case "delete":
-			operationSchema = `${modelName}DeleteOneSchema`;
-			break;
-		case "deleteMany":
-			operationSchema = `${modelName}DeleteManySchema`;
-			break;
-		case "count":
-			operationSchema = `${modelName}CountSchema`;
-			break;
-		case "groupBy":
-			operationSchema = `${modelName}GroupBySchema`;
-			break;
-		case "aggregate":
-			operationSchema = `${modelName}AggregateSchema`;
-			break;
-	}
-
-	// Add input validation using proper CRUD schemas
-	if (config.generateInputValidation && operationSchema) {
-		chainParts.push(`.input(${operationSchema})`);
-	}
-	// When validation is disabled, no .input() call is added.
-	// The handler receives untyped input and casts it via `rawInput as any`.
-
-	// Add output validation
-	if (config.generateOutputValidation && outputSchemaExpr) {
-		chainParts.push(`.output(${outputSchemaExpr})`);
-	}
 
 	// Generate handler
 	const handlerCode = generateHandlerCode(

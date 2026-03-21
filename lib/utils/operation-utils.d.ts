@@ -4,7 +4,7 @@
  * Determines types, methods, and caching for generated routers powering
  * scala-hub's AI-executable CRUD endpoints.
  */
-import { Config } from '../config/schema';
+import type { Config } from "../config/schema";
 interface ValidationRequirement {
     requiresInput: boolean;
     requiresOutput: boolean;

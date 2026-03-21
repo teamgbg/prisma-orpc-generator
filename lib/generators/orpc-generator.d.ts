@@ -4,12 +4,11 @@
  * Coordinates schema analysis and generation of ORPC routers for scala-hub's
  * Prisma-backed API, enabling AI tool execution via tool-mcp.
  */
-import type { DMMF } from '@prisma/generator-helper';
-import { GeneratorOptions } from '@prisma/generator-helper';
-import { Config } from '../config/schema';
-import { PrismaModel } from '../types/generator-types';
-import { Logger } from '../utils/logger';
-import { ProjectManager } from '../utils/project-manager';
+import type { DMMF, GeneratorOptions } from "@prisma/generator-helper";
+import { type Config } from "../config/schema";
+import type { PrismaModel } from "../types/generator-types";
+import { Logger } from "../utils/logger";
+import { ProjectManager } from "../utils/project-manager";
 export interface SpinnerLike {
     start(_text?: string): void;
     stop(): void;
@@ -40,8 +39,6 @@ export declare class ORPCGenerator {
     private generateAdvancedFeatures;
     private generateDocumentation;
     private generateTests;
-    private generateZodSchemasProgrammatically;
-    private createZodConfig;
     private optimizeOutput;
     private finalizeGeneration;
     private completeGeneration;

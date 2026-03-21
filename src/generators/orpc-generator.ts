@@ -11,9 +11,7 @@ import path from "node:path";
 import type { DMMF, EnvValue, GeneratorOptions } from "@prisma/generator-helper";
 import { getDMMF, parseEnvValue } from "@prisma/internals";
 import chalk from "chalk";
-import { generate as PrismaZodGenerator } from "prisma-zod-generator/lib/prisma-generator";
-
-import { type Config, configSchema } from "../config/schema";
+import { type Config, parseConfig } from "../config/schema";
 import type { PrismaModel } from "../types/generator-types";
 import { Logger } from "../utils/logger";
 import {
@@ -113,12 +111,7 @@ export class ORPCGenerator {
 	private plugins: ORPCGeneratorPlugin[] = [];
 
 	constructor(private options: GeneratorOptions) {
-		const results = configSchema.safeParse(options.generator.config);
-		if (!results.success) {
-			throw new Error(`Invalid generator configuration: ${results.error.message}`);
-		}
-
-		this.config = results.data;
+		this.config = parseConfig(options.generator.config as Record<string, string | string[]>);
 		this.outputDir = parseEnvValue(options.generator.output as EnvValue);
 		this.projectManager = new ProjectManager(this.outputDir);
 		this.logger = new Logger(this.config.enableDebugLogging);
@@ -290,22 +283,10 @@ export class ORPCGenerator {
 	}
 
 	private async generateAdvancedFeatures(
-		options: GeneratorOptions,
+		_options: GeneratorOptions,
 		models: PrismaModel[],
 	): Promise<void> {
 		const tasks = [];
-		const shouldGenerateValidationSchemas =
-			this.config.generateInputValidation || this.config.generateOutputValidation;
-
-		// Only generate Zod schemas when Zod is selected and validation is actually enabled.
-		if (this.config.schemaLibrary === "zod" && shouldGenerateValidationSchemas) {
-			this.spinner.text = "Generating Zod schemas (prisma-zod-generator)...";
-			tasks.push(this.generateZodSchemasProgrammatically(options, models));
-		} else if (this.config.schemaLibrary === "zod") {
-			this.logger.debug(
-				"Skipping prisma-zod-generator because both generateInputValidation and generateOutputValidation are disabled",
-			);
-		}
 
 		// Documentation
 		if (this.isEnabled(this.config.generateDocumentation)) {
@@ -338,116 +319,6 @@ export class ORPCGenerator {
 			this.logger,
 		);
 		await testGenerator.generateTests(models);
-	}
-
-	private async generateZodSchemasProgrammatically(
-		options: GeneratorOptions,
-		_models?: PrismaModel[],
-	): Promise<void> {
-		try {
-			const rawOutput = parseEnvValue(options.generator.output as EnvValue);
-			// Base resolution: like Prisma would (relative to schema file)
-			const outputDir = path.isAbsolute(rawOutput)
-				? rawOutput
-				: path.resolve(path.dirname(options.schemaPath), rawOutput);
-
-			// Call prisma-zod-generator directly, redirecting output to our schemas folder
-			const zodOutput = path.relative(
-				path.dirname(options.schemaPath),
-				path.join(outputDir, "zod-schemas"),
-			);
-
-			// Create zod.config.json dynamically with relative paths
-			const zodConfigPath = await this.createZodConfig(options, zodOutput);
-
-			// Ensure datasources is provided for prisma-zod-generator
-			const generatorOptions: GeneratorOptions = {
-				...options,
-				generator: {
-					...options.generator,
-					config: {
-						...options.generator.config,
-						config: zodConfigPath,
-					},
-				},
-				// Provide default datasources if missing
-				datasources: options.datasources || [
-					{
-						name: "db",
-						provider: "sqlite",
-						url: { value: "file:./dev.db", fromEnvVar: null },
-						directUrl: null,
-					},
-				],
-			};
-
-			await PrismaZodGenerator(generatorOptions);
-
-			this.logger.debug(`Generated Zod schemas using prisma-zod-generator to ${zodOutput}`);
-			this.logger.debug(`Zod configuration saved to ${zodConfigPath} for customization`);
-		} catch (error) {
-			this.logger.error(`Failed to generate Zod schemas: ${error}`);
-			// Log the error but continue - schemas are optional
-			this.logger.warn("Continuing without Zod schemas - validation will be disabled");
-		}
-	}
-
-	private async createZodConfig(options: GeneratorOptions, zodOutput: string): Promise<string> {
-		// Check if user provided a custom config path
-		if (this.config.zodConfigPath) {
-			const customConfigPath = path.isAbsolute(this.config.zodConfigPath)
-				? this.config.zodConfigPath
-				: path.resolve(path.dirname(options.schemaPath), this.config.zodConfigPath);
-
-			try {
-				await fs.access(customConfigPath);
-				this.logger.debug(`Using custom Zod configuration from ${customConfigPath}`);
-				return customConfigPath;
-			} catch {
-				throw new Error(`Custom Zod config file not found: ${customConfigPath}`);
-			}
-		}
-
-		// Default config path alongside schema
-		const defaultConfigPath = path.join(path.dirname(options.schemaPath), "zod.config.json");
-
-		// Check if default config already exists
-		try {
-			await fs.access(defaultConfigPath);
-			this.logger.debug(`Using existing Zod configuration from ${defaultConfigPath}`);
-
-			// Don't modify existing config file - settings are passed as generator options instead
-
-			return defaultConfigPath;
-		} catch {
-			// Config doesn't exist, create it with pure Zod configuration
-		}
-
-		// Start with minimal config
-		const minimalZodConfig = {
-			mode: "full",
-			output: zodOutput,
-		};
-
-		// Add oRPC-managed settings only if they differ from defaults or are explicitly set
-		const zodConfigWithORPCSettings = {
-			...minimalZodConfig,
-			// Only add dateTimeStrategy if it's not the default
-			...(this.config.zodDateTimeStrategy !== "coerce"
-				? { dateTimeStrategy: this.config.zodDateTimeStrategy }
-				: {}),
-		};
-
-		// Use minimal config if no oRPC overrides, otherwise use the merged config
-		const finalZodConfig =
-			this.config.zodDateTimeStrategy !== "coerce" ? zodConfigWithORPCSettings : minimalZodConfig;
-
-		await fs.writeFile(defaultConfigPath, JSON.stringify(finalZodConfig, null, 2), "utf8");
-		this.logger.debug(
-			`Created ${finalZodConfig === minimalZodConfig ? "minimal" : "customized"} Zod configuration at ${defaultConfigPath}`,
-		);
-
-		return defaultConfigPath;
 	}
 
 	private async optimizeOutput(): Promise<void> {
@@ -504,7 +375,6 @@ export class ORPCGenerator {
 		if (this.isEnabled(this.config.generateTests)) features.push("Test Generation");
 
 		this.logger.info(chalk.white(`📁 Output Directory: ${this.outputDir}`));
-		this.logger.info(chalk.white(`🛠️  Schema Library: ${this.config.schemaLibrary}`));
 		this.logger.info(chalk.white(`✨ Generated Features: ${features.join(", ")}`));
 
 		const stats = this.projectManager.getGenerationStats();

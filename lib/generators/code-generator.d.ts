@@ -4,11 +4,11 @@
  * Produces base routers, model procedures, and app router for scala-hub's ORPC API,
  * with auth, soft deletes, and validation for AI tool delegation.
  */
-import { GeneratorOptions } from '@prisma/generator-helper';
-import { Config } from '../config/schema';
-import { PrismaModel } from '../types/generator-types';
-import { Logger } from '../utils/logger';
-import { ProjectManager } from '../utils/project-manager';
+import type { GeneratorOptions } from "@prisma/generator-helper";
+import type { Config } from "../config/schema";
+import type { PrismaModel } from "../types/generator-types";
+import type { Logger } from "../utils/logger";
+import type { ProjectManager } from "../utils/project-manager";
 export declare class CodeGenerator {
     private config;
     private outputDir;

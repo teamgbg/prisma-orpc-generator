@@ -4,8 +4,8 @@
  * Interfaces for cache, auth, and rate limiting in generated routers for
  * scala-hub's multi-tenant ORPC API layer.
  */
-import type { DMMF } from '@prisma/generator-helper';
-import { Config } from '../config/schema';
+import type { DMMF } from "@prisma/generator-helper";
+import type { Config } from "../config/schema";
 export interface CacheAdapter {
     get<T = unknown>(_key: string): Promise<T | null> | T | null;
     set<T = unknown>(_key: string, _value: T, _ttlSeconds?: number): Promise<void> | void;
@@ -21,9 +21,7 @@ export interface AuthVerifierContext<TMeta = unknown> {
     scheme: string | null;
     meta: TMeta;
 }
-export interface AuthVerifier {
-    (_token: string, _strategy: string, _ctx: AuthVerifierContext): Promise<unknown | null> | unknown | null;
-}
+export type AuthVerifier = (_token: string, _strategy: string, _ctx: AuthVerifierContext) => Promise<unknown | null> | unknown | null;
 export interface PluginHookArgs {
     models: DMMF.Model[];
     dmmf: DMMF.Document;

@@ -4,13 +4,13 @@
  * Exposes config, utilities, and compatibility checks for generating ORPC routers
  * integrated into scala-hub's AI tool execution pipeline.
  */
-export { Config, configSchema } from './config/schema';
-export type { Config as GeneratorConfig, ModelAction, SchemaLibrary } from './config/schema';
-export { generate } from './generators/orpc-generator';
-export { Logger, LogLevel } from './utils/logger';
-export { enhanceModelsWithMetadata, getFilterableFields, getModelRelations, getSearchableFields, getSortableFields, getUniqueFields, getValidationConstraints, hasSoftDeleteField, resolveModelsComments, shouldHaveAuditFields, supportsFullTextSearch } from './utils/model-utils';
-export { getHttpMethod, getInputTypeByOpName, getOperationDescription, getOperationSummary, getOutputTypeByOpName, getRestPath, getValidationRequirements, requiresAuthentication, returnsMultiple, shouldGenerateOperation, supportsCaching } from './utils/operation-utils';
-export { ProjectManager } from './utils/project-manager';
+export type { Config as GeneratorConfig, Config, ModelAction } from "./config/schema";
+export { parseConfig } from "./config/schema";
+export { generate } from "./generators/orpc-generator";
+export { Logger, LogLevel } from "./utils/logger";
+export { enhanceModelsWithMetadata, getFilterableFields, getModelRelations, getSearchableFields, getSortableFields, getUniqueFields, getValidationConstraints, hasSoftDeleteField, resolveModelsComments, shouldHaveAuditFields, supportsFullTextSearch, } from "./utils/model-utils";
+export { getHttpMethod, getInputTypeByOpName, getOperationDescription, getOperationSummary, getOutputTypeByOpName, getRestPath, getValidationRequirements, requiresAuthentication, returnsMultiple, shouldGenerateOperation, supportsCaching, } from "./utils/operation-utils";
+export { ProjectManager } from "./utils/project-manager";
 export declare const VERSION = "0.0.1";
 export declare const GENERATOR_NAME = "prisma-orpc-generator";
 export declare const GENERATOR_METADATA: {
@@ -22,7 +22,7 @@ export declare const GENERATOR_METADATA: {
     readonly homepage: "https://prisma-orpc-generator.dev";
     readonly bugs: "https://github.com/omar-dulaimi/prisma-orpc-generator/issues";
     readonly keywords: readonly ["prisma", "orpc", "generator", "typescript", "api", "rpc", "type-safe", "codegen"];
-    readonly capabilities: readonly ["Advanced oRPC router generation", "Zod schema validation with full type safety", "Comprehensive middleware system", "Interactive documentation", "Test generation", "Enhanced error handling", "Caching strategies", "Authentication & RBAC", "Rate limiting"];
+    readonly capabilities: readonly ["Advanced oRPC router generation", "Comprehensive middleware system", "Interactive documentation", "Test generation", "Enhanced error handling", "Caching strategies", "Authentication & RBAC", "Rate limiting"];
 };
 export declare const PRESET_CONFIGS: {
     readonly basic: {
