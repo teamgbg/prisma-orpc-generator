@@ -45,6 +45,11 @@ function convertDMMFFieldToPrismaField(field: DMMF.Field): PrismaField {
  * Convert DMMF Model to PrismaModel
  */
 export function convertDMMFModelToPrismaModel(model: DMMF.Model): PrismaModel {
+	// Detect views: Prisma view blocks have no @id field.
+	// Regular models always have at least one field with isId: true.
+	const hasIdField = model.fields.some((f: DMMF.Field) => f.isId);
+	const isView = !hasIdField;
+
 	return {
 		name: model.name,
 		dbName: model.dbName || undefined,
@@ -65,6 +70,7 @@ export function convertDMMFModelToPrismaModel(model: DMMF.Model): PrismaModel {
 			}),
 		),
 		isGenerated: model.isGenerated,
+		isView,
 		documentation: model.documentation || undefined,
 	};
 }

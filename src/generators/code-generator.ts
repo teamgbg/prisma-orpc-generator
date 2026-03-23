@@ -19,6 +19,7 @@ import {
 	getExposedName,
 	getInputTypeByOpName,
 	getOutputTypeByOpName,
+	isReadOnlyOperation,
 	shouldGenerateOperation,
 } from "../utils/operation-utils";
 import type { ProjectManager } from "../utils/project-manager";
@@ -248,16 +249,20 @@ ${this.generateUtilityFunctions()}
 		// Generate procedures
 		let procedures = await this.generateModelProcedures(model, modelOperations);
 
-		if (this.config.generateRelationResolvers) {
+		// Views are read-only — no relation resolvers
+		if (this.config.generateRelationResolvers && !model.isView) {
 			const relProcedures = this.generateRelationProcedures(model);
 			if (relProcedures) {
 				procedures = procedures + (procedures ? ",\n\n" : "") + relProcedures;
 			}
 		}
 
+		const routerComment = model.isView
+			? `${modelName} router — read-only (database view)`
+			: `${modelName} router with comprehensive CRUD operations`;
 		sourceFile.addStatements(`
 /**
- * ${modelName} router with comprehensive CRUD operations
+ * ${routerComment}
  * Generated with strong type safety
  */
 const ${routerName}Procedures = {
@@ -317,8 +322,10 @@ export { ${routerName}Procedures };
 		const procedures: string[] = [];
 		const generatedOperations = new Set<string>();
 
-		// Essential CRUD operations
-		const essentialOperations = ["create", "findMany", "findUnique", "update", "delete", "count"];
+		// Essential CRUD operations — views only get read operations
+		const essentialOperations = model.isView
+			? ["findMany", "findFirst", "count"]
+			: ["create", "findMany", "findUnique", "update", "delete", "count"];
 
 		// Generate each operation
 		for (const [opType, opName] of Object.entries(operations)) {
@@ -327,6 +334,9 @@ export { ${routerName}Procedures };
 			const baseOpType = opType.replace("OrThrow", "").replace(/One$/, "");
 
 			if (generatedOperations.has(baseOpType)) continue;
+
+			// Skip write operations for views
+			if (model.isView && !isReadOnlyOperation(baseOpType)) continue;
 
 			if (shouldGenerateOperation(baseOpType, this.config)) {
 				const procedureCode = await this.generateSingleProcedure(

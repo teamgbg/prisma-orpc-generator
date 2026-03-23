@@ -43,6 +43,11 @@ export declare function getOperationDescription(opType: string, modelName: strin
  */
 export declare function getOperationSummary(opType: string, modelName: string): string;
 /**
+ * Check if operation is a read-only (query) operation.
+ * Views only support these operations — no create/update/delete.
+ */
+export declare function isReadOnlyOperation(opType: string): boolean;
+/**
  * Check if operation supports caching
  */
 export declare function supportsCaching(opType: string): boolean;

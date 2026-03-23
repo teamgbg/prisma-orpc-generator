@@ -171,12 +171,19 @@ export function getOperationSummary(opType: string, modelName: string): string {
 }
 
 /**
+ * Check if operation is a read-only (query) operation.
+ * Views only support these operations — no create/update/delete.
+ */
+export function isReadOnlyOperation(opType: string): boolean {
+	const readOperations = ["findFirst", "findMany", "findUnique", "count", "aggregate", "groupBy"];
+	return readOperations.includes(opType);
+}
+
+/**
  * Check if operation supports caching
  */
 export function supportsCaching(opType: string): boolean {
-	// Only read operations support caching
-	const readOperations = ["findFirst", "findMany", "findUnique", "count", "aggregate", "groupBy"];
-	return readOperations.includes(opType);
+	return isReadOnlyOperation(opType);
 }
 
 /**

@@ -47,6 +47,7 @@ export interface PrismaModel {
 		fields: string[];
 	}>;
 	isGenerated?: boolean;
+	isView?: boolean;
 	documentation?: string;
 }
 
