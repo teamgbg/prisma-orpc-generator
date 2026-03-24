@@ -136,9 +136,10 @@ export function generateCreate(ctx: HandlerContext): string {
       const result = await ctx.prisma.${modelVar}.create((input) as Prisma.${modelName}CreateArgs);`;
 	}
 	return `
-      const createData = ctx.orgId
-        ? { ...input.data, organisation_id: ctx.orgId }
-        : { ...input.data };
+      const createData = { ...input.data };
+      if (ctx.orgId && !createData.organisation_id) {
+        createData.organisation_id = ctx.orgId;
+      }
       const result = await ctx.prisma.${modelVar}.create({ data: createData } as Prisma.${modelName}CreateArgs);`;
 }
 
@@ -150,8 +151,11 @@ export function generateCreateMany(ctx: HandlerContext): string {
 	}
 	return `
       const createManyData = Array.isArray(input.data)
-        ? input.data.map((item: any) => ctx.orgId ? { ...item, organisation_id: ctx.orgId } : item)
-        : ctx.orgId ? { ...input.data, organisation_id: ctx.orgId } : input.data;
+        ? input.data.map((item: any) => {
+            if (ctx.orgId && !item.organisation_id) return { ...item, organisation_id: ctx.orgId };
+            return item;
+          })
+        : (() => { const d = { ...input.data }; if (ctx.orgId && !d.organisation_id) d.organisation_id = ctx.orgId; return d; })();
       const result = await ctx.prisma.${modelVar}.createMany({ data: createManyData } as Prisma.${modelName}CreateManyArgs);`;
 }
 
@@ -224,7 +228,7 @@ export function generateUpsert(ctx: HandlerContext): string {
 	return `${orgScopeWhere("upsertWhere", "input.where", ctx)}
       const result = await ctx.prisma.${modelVar}.upsert({
         where: upsertWhere,
-        create: ctx.orgId ? { ...input.create, organisation_id: ctx.orgId } : { ...input.create },
+        create: (() => { const d = { ...input.create }; if (ctx.orgId && !d.organisation_id) d.organisation_id = ctx.orgId; return d; })(),
         update: input.update,
       } as Prisma.${modelName}UpsertArgs);`;
 }
