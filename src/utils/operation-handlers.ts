@@ -45,7 +45,7 @@ function orgScopeWhere(varName: string, sourceExpr: string, ctx: HandlerContext)
 	if (!ctx.isOrgScoped) return "";
 	return `
       const ${varName} = { ...${sourceExpr} };
-      if (ctx.orgId) {
+      if (ctx.orgId && !ctx.user?.isSuperAdmin) {
         (${varName} as any).organisation_id = ctx.orgId;
       }`;
 }
@@ -66,7 +66,7 @@ function softDeleteWhere(whereExpr: string, ctx: HandlerContext): string {
 function orgScopeInPlace(whereExpr: string, ctx: HandlerContext): string {
 	if (!ctx.isOrgScoped) return "";
 	return `
-      if (ctx.orgId) {
+      if (ctx.orgId && !ctx.user?.isSuperAdmin) {
         (${whereExpr} as any).organisation_id = ctx.orgId;
       }`;
 }
@@ -257,7 +257,7 @@ export function generateAggregate(ctx: HandlerContext): string {
       }`;
 	if (ctx.isOrgScoped) {
 		code += `
-      if (ctx.orgId) {
+      if (ctx.orgId && !ctx.user?.isSuperAdmin) {
         if (!aggArgs.where) aggArgs.where = {};
         (aggArgs.where as any).organisation_id = ctx.orgId;
       }`;
@@ -300,7 +300,7 @@ export function generateGroupBy(ctx: HandlerContext, model: CodeGenModel): strin
 
 	if (ctx.isOrgScoped) {
 		code += `
-      if (ctx.orgId) {
+      if (ctx.orgId && !ctx.user?.isSuperAdmin) {
         if (!(args as any).where) (args as any).where = {};
         (args.where as any).organisation_id = ctx.orgId;
       }`;
