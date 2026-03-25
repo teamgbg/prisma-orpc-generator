@@ -1,62 +1,62 @@
 {
   "src/bin.ts": {
-    "hash": "87ba5ef1ca04fe8ce78703dcfb3ec73a35d63a5f07679b1f4d8f4afe25b44b30",
-    "generatedAt": "2026-03-15"
+    "hash": "051ac35ecc825364027faf16ad0b41d41b6964ce316da3b290edc3215423b0b6",
+    "generatedAt": "2026-03-25"
   },
   "src/config/schema.ts": {
-    "hash": "a8dcf32bc11b6c326d6f0d82c021a804a54d24f477a6025977066415c0d6135c",
-    "generatedAt": "2026-03-13"
+    "hash": "4ed63bfa4dce6c474523225e0eceb17b8eaa4a12f4289b0fe40a67ca1132746f",
+    "generatedAt": "2026-03-25"
   },
   "src/generators/code-generator.ts": {
-    "hash": "28805255e540d84a7ba59795d1685c8c31048f7c47fe3bf6a52a8cda0f3e0c59",
-    "generatedAt": "2026-03-18"
+    "hash": "786f47de46d1d53f0a81c9e75d8279c05a5652813d5223a47fe089c4acdc7f0b",
+    "generatedAt": "2026-03-25"
   },
   "src/generators/documentation-generator.ts": {
-    "hash": "efab48e97471ecae35a4851e8f713d4b44b196be945bd501bf047c0ba470d758",
-    "generatedAt": "2026-03-13"
+    "hash": "e5270f11e78209079d631a8ccbc12275c35faee99c9c0a2d703ce2d1e5aef2f7",
+    "generatedAt": "2026-03-25"
   },
   "src/generators/orpc-generator.ts": {
-    "hash": "e790ac98c49ff19e14dd6307aacc881297241d8eafe1663e8cd8aea80b303302",
-    "generatedAt": "2026-03-13"
+    "hash": "361515e905cf8cab148d312c3b23e380ae5b943c2184443a92da5f25cc12ca9b",
+    "generatedAt": "2026-03-25"
   },
   "src/generators/test-generator.ts": {
-    "hash": "7235a84b8b05b9a433a3fa3e77155f18eeb29a9654282bd32f74f42c553246a0",
-    "generatedAt": "2026-03-13"
+    "hash": "323c5be5ff3d97f04c844c7e76687b7d0a540b07a29e488e846dd364fb093583",
+    "generatedAt": "2026-03-25"
   },
   "src/index.ts": {
-    "hash": "7e6c3902045b11d4a72d6d0af546694f9bd333603eb6ffede473fdbb540af10c",
-    "generatedAt": "2026-03-13"
+    "hash": "6edefa86ae684cc3e9c0d6a0af28d1f0a04141df6b79d8761cca2b8f635a6b60",
+    "generatedAt": "2026-03-25"
   },
   "src/types/adapters.ts": {
-    "hash": "0569a07f654cc04415ffbd6cfe954780ae757ef98533f69bb032b9c0bc3e5f59",
-    "generatedAt": "2026-03-13"
+    "hash": "d4eab7d68c815d6353c6602ed98e36721f4c2e61363871fae281e717ad238120",
+    "generatedAt": "2026-03-25"
   },
   "src/types/generator-types.ts": {
-    "hash": "d0f199b72d9a150ca79e2f9843befd40913ee319c55cfc5e070f403b798f59f9",
-    "generatedAt": "2026-03-16"
+    "hash": "24266aa7b6ff35d32ba6c0f5752260eeebddfb1edfab5c0a742c8325a0d0a843",
+    "generatedAt": "2026-03-25"
   },
   "src/utils/code-generation-utils.ts": {
-    "hash": "32925bd716f312618a830955db3984399116d180c93a885c20f1280233023724",
-    "generatedAt": "2026-03-18"
+    "hash": "9f691c1b0542264faf3fd64b907ca55637cdd673385dd51191823929ead3e42a",
+    "generatedAt": "2026-03-25"
   },
   "src/utils/logger.ts": {
-    "hash": "4c45abcf36e776b4d9e083d55616262fec566fae476c400cbc0d2f0909a4328c",
-    "generatedAt": "2026-03-13"
+    "hash": "68ab78748950c429ca2d579bedf5e3161aba336a439685b2460eb7049b537d46",
+    "generatedAt": "2026-03-25"
   },
   "src/utils/model-utils.ts": {
-    "hash": "8e0e069644f18c95e032ad904ce6012e58faf9df946d3be56726226c6fa4f311",
-    "generatedAt": "2026-03-16"
+    "hash": "5b95ca24b0d607edaec4880edda38e80a341a571ad8c1440068f4c1cd5ab997e",
+    "generatedAt": "2026-03-25"
   },
   "src/utils/operation-handlers.ts": {
-    "hash": "a064da9d82adc7a42d8be9ed99204a7572a61de92437e0db77cfc6e0f3fdd35d",
-    "generatedAt": "2026-03-18"
+    "hash": "b3ce8eed4f488cfa29a2e9813ce53a9cecd36af969448655af590ef980cf5a1b",
+    "generatedAt": "2026-03-25"
   },
   "src/utils/operation-utils.ts": {
-    "hash": "0d11d823a4bd453e26060890206ee623f215db40384d5cd28235630aad4d19e3",
-    "generatedAt": "2026-03-13"
+    "hash": "ad499240b8a682be3ff4abcad584b49aa14a89e9ebdd77ece7e9971400ea4e54",
+    "generatedAt": "2026-03-25"
   },
   "src/utils/project-manager.ts": {
-    "hash": "6ca79e6ae54f38f435f3fff7d65768445db8c40847538ed87eb06a693dd3c1c8",
-    "generatedAt": "2026-03-13"
+    "hash": "5cb880ce5e21e41e099aeb0b47f02eb2e76b8f26b4e6fc955b0f00dda413ea01",
+    "generatedAt": "2026-03-25"
   }
 }
