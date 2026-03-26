@@ -7,6 +7,7 @@
  */
 import type { Config } from "../config/schema";
 import type { PrismaModel } from "../types/generator-types";
+import type { PgFunction } from "../utils/pg-function-introspector";
 export interface ManifestField {
     name: string;
     type: string;
@@ -27,10 +28,25 @@ export interface ManifestModel {
     publicProcedures: string[];
     procedures: string[];
 }
+export interface ManifestFunctionParam {
+    name: string;
+    type: string;
+    tsType: string;
+}
+export interface ManifestFunction {
+    params: ManifestFunctionParam[];
+    returnType: string;
+    returnTsType: string;
+    isOrgScoped: boolean;
+    isUserScoped: boolean;
+    volatility: string;
+    procedures: string[];
+}
 export interface ToolManifest {
     version: number;
     generatedAt: string;
     models: Record<string, ManifestModel>;
+    functions: Record<string, ManifestFunction>;
 }
-export declare function generateToolManifest(models: PrismaModel[], config: Config): ToolManifest;
+export declare function generateToolManifest(models: PrismaModel[], config: Config, functions?: PgFunction[]): ToolManifest;
 //# sourceMappingURL=manifest-generator.d.ts.map

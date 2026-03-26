@@ -20,6 +20,7 @@ import {
 	resolveModelsComments,
 } from "../utils/model-utils";
 import { ProjectManager } from "../utils/project-manager";
+import { AUTOGEN_HEADER } from "../utils/autogen-header";
 import { CodeGenerator } from "./code-generator";
 import { DocumentationGenerator } from "./documentation-generator";
 import { generateFunctionRouters } from "./function-generator";
@@ -142,11 +143,11 @@ export class ORPCGenerator {
 			const dmmf = await this.analyzePrismaSchema();
 			const models = this.processModels(dmmf);
 
-			// Phase 3: Core generation
+			// Phase 3: Core generation (models + views)
 			await this.generateCoreFiles(models, dmmf);
 
 			// Phase 3.1: PG function introspection and generation
-			await this.generatePgFunctionRouters(models);
+			await this.introspectAndGeneratePgFunctions();
 
 			// Phase 3.5: Tool manifest — contract for scala-ai-tool-generator
 			await this.writeToolManifest(models);
@@ -157,6 +158,14 @@ export class ORPCGenerator {
 			// Phase 5: Optimization and finalization
 			await this.optimizeOutput();
 			await this.finalizeGeneration();
+
+			// Phase 5.1: Regenerate app router with functions (must happen AFTER
+			// finalizeGeneration saves the ts-morph project to disk, otherwise
+			// ts-morph's in-memory version overwrites our changes)
+			if (this.pgFunctions.length > 0) {
+				await this.regenerateAppRouterWithFunctions(models);
+			}
+
 			await this.runPostWriteHooks();
 
 			this.completeGeneration();
@@ -292,22 +301,51 @@ export class ORPCGenerator {
 		this.logger.debug("Core files generation completed");
 	}
 
-	private async generatePgFunctionRouters(models: PrismaModel[]): Promise<void> {
+	private async introspectAndGeneratePgFunctions(): Promise<void> {
 		if (!this.isEnabled(this.config.generatePgFunctions)) {
 			this.logger.debug("PG function generation disabled, skipping");
 			return;
 		}
 
-		// Resolve DATABASE_URL from datasources
-		const datasource = this.options.datasources?.[0];
-		const dbUrl = datasource?.url?.fromEnvVar
-			? process.env[datasource.url.fromEnvVar]
-			: datasource?.url?.value;
+		this.logger.debug("PG function generation enabled, resolving DATABASE_URL...");
+
+		// Resolve DATABASE_URL from environment.
+		// Prisma CLI loads .env but not .env.local — try loading it ourselves if needed.
+		let dbUrl = process.env.DATABASE_URL;
+		if (!dbUrl) {
+			// Try .env.local relative to the schema path (project root)
+			const schemaDir = this.options.schemaPath
+				? path.dirname(this.options.schemaPath)
+				: process.cwd();
+			const projectRoot = path.resolve(schemaDir, "..");
+			const candidates = [
+				path.resolve(projectRoot, ".env.local"),
+				path.resolve(projectRoot, ".env"),
+				path.resolve(process.cwd(), ".env.local"),
+				path.resolve(process.cwd(), ".env"),
+			];
+
+			for (const candidate of candidates) {
+				try {
+					const content = await fs.readFile(candidate, "utf8");
+					const match = content.match(/^DATABASE_URL=(.+)$/m);
+					if (match?.[1]) {
+						dbUrl = match[1].trim().replace(/^["']|["']$/g, "");
+						this.logger.debug(`Found DATABASE_URL in ${candidate}`);
+						break;
+					}
+				} catch {
+					// file doesn't exist, try next
+				}
+			}
+		} else {
+			this.logger.debug("DATABASE_URL found in process.env");
+		}
 
 		if (!dbUrl) {
 			this.logger.info(
 				"DATABASE_URL not available — skipping PG function generation. " +
-				"Set DATABASE_URL or configure the datasource URL to enable function introspection.",
+				"Set DATABASE_URL in .env or .env.local to enable function introspection.",
 			);
 			return;
 		}
@@ -332,9 +370,6 @@ export class ORPCGenerator {
 				this.logger,
 			);
 
-			// Re-read and update the app router index to include function routers
-			await this.appendFunctionRoutersToIndex();
-
 			this.logger.debug(
 				`Generated ${this.pgFunctions.length} PG function routers`,
 			);
@@ -344,54 +379,78 @@ export class ORPCGenerator {
 		}
 	}
 
-	private async appendFunctionRoutersToIndex(): Promise<void> {
-		const indexPath = path.join(this.outputDir, "routers", "index.ts");
-		const existing = await fs.readFile(indexPath, "utf8");
+	/**
+	 * Regenerate the app router index.ts to include both model routers and function routers.
+	 * This overwrites the index created by generateCoreFiles.
+	 */
+	private async regenerateAppRouterWithFunctions(models: PrismaModel[]): Promise<void> {
+		this.spinner.text = "Regenerating app router with PG function routers...";
 
-		// Build import and router entry lines for functions
-		const importLines = this.pgFunctions
+		const indexPath = path.join(this.outputDir, "routers", "index.ts");
+		const pluralize = (await import("pluralize")).default;
+
+		// Model imports
+		const modelImports = models
+			.map((m) => {
+				const routerName = pluralize(m.name.toLowerCase());
+				return `import { ${routerName}Router } from "./models/${m.name}.router";`;
+			})
+			.join("\n");
+
+		// Function imports
+		const fnImports = this.pgFunctions
 			.map((fn) => `import { ${fn.name}Router } from "./models/${fn.name}.router";`)
 			.join("\n");
 
-		const routerEntries = this.pgFunctions
+		// Model router entries
+		const modelEntries = models
+			.map((m) => {
+				const routerName = pluralize(m.name.toLowerCase());
+				return `  ${m.name.toLowerCase()}: ${routerName}Router`;
+			})
+			.join(",\n");
+
+		// Function router entries
+		const fnEntries = this.pgFunctions
 			.map((fn) => `  ${fn.name}: ${fn.name}Router`)
 			.join(",\n");
 
-		const reExports = this.pgFunctions
+		// All re-exports
+		const modelReExports = models
+			.map((m) => `${pluralize(m.name.toLowerCase())}Router`)
+			.join(", ");
+		const fnReExports = this.pgFunctions
 			.map((fn) => `${fn.name}Router`)
 			.join(", ");
 
-		// Insert imports after existing imports
-		const lastImportIdx = existing.lastIndexOf("import ");
-		const afterLastImport = existing.indexOf("\n", lastImportIdx);
-		const withImports =
-			existing.slice(0, afterLastImport + 1) +
-			importLines +
-			"\n" +
-			existing.slice(afterLastImport + 1);
+		const content = `${AUTOGEN_HEADER}
+${modelImports}
+${fnImports}
 
-		// Insert router entries into appRouter object (before closing brace)
-		const appRouterClose = withImports.lastIndexOf("};");
-		const beforeClose = withImports.lastIndexOf("\n", appRouterClose);
-		const withEntries =
-			withImports.slice(0, beforeClose) +
-			",\n" +
-			routerEntries +
-			"\n" +
-			withImports.slice(beforeClose);
+/**
+ * Main application router combining all model and function routers
+ * Generated with advanced oRPC architecture
+ */
+export const appRouter = {
+${modelEntries},
+${fnEntries}
+};
 
-		// Append re-exports to the existing export statement
-		const existingExportMatch = withEntries.match(/export \{([^}]+)\}/);
-		let finalContent = withEntries;
-		if (existingExportMatch) {
-			const existingExports = existingExportMatch[1];
-			finalContent = withEntries.replace(
-				`export {${existingExports}}`,
-				`export {${existingExports}, ${reExports}}`,
-			);
-		}
+/**
+ * Type definition for the complete app router
+ */
+export type AppRouter = typeof appRouter;
 
-		await fs.writeFile(indexPath, finalContent, "utf8");
+/**
+ * Export individual routers for modular usage
+ */
+export {${modelReExports}, ${fnReExports}};
+`;
+
+		await fs.writeFile(indexPath, content, "utf8");
+		this.logger.debug(
+			`App router regenerated with ${models.length} models + ${this.pgFunctions.length} functions`,
+		);
 	}
 
 	private async writeToolManifest(models: PrismaModel[]): Promise<void> {

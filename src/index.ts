@@ -38,6 +38,8 @@ export {
 	supportsCaching,
 } from "./utils/operation-utils";
 export { ProjectManager } from "./utils/project-manager";
+export { introspectPgFunctions } from "./utils/pg-function-introspector";
+export type { PgFunction, PgFunctionParam } from "./utils/pg-function-introspector";
 
 // Version information
 export const VERSION = "0.0.1";

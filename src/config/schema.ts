@@ -52,6 +52,10 @@ export interface Config {
 	wrapResponses: boolean;
 	generateErrorHandling: boolean;
 	prismaClientPath: string;
+	/** Enable generation of ORPC routers for fn_* PostgreSQL functions (requires DATABASE_URL) */
+	generatePgFunctions: boolean;
+	/** Prefix filter for PG functions to include (default: "fn_") */
+	pgFunctionPrefix: string;
 }
 
 function parseBoolean(value: string | undefined, defaultValue: boolean): boolean {
@@ -117,6 +121,8 @@ export function parseConfig(raw: Record<string, string | string[]>): Config {
 		wrapResponses: parseBoolean(raw.wrapResponses as string, false),
 		generateErrorHandling: parseBoolean(raw.generateErrorHandling as string, true),
 		prismaClientPath: parseString(raw.prismaClientPath as string, "@prisma/client"),
+		generatePgFunctions: parseBoolean(raw.generatePgFunctions as string, true),
+		pgFunctionPrefix: parseString(raw.pgFunctionPrefix as string, "fn_"),
 	};
 }
 

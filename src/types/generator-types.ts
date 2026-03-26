@@ -5,6 +5,8 @@
  * scala-hub's shared database and AI infrastructure.
  */
 
+export type { PgFunction, PgFunctionParam } from "../utils/pg-function-introspector";
+
 export type FieldKind = "scalar" | "object" | "enum";
 export type FieldType =
 	| "String"

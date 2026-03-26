@@ -11,6 +11,8 @@ export { Logger, LogLevel } from "./utils/logger";
 export { enhanceModelsWithMetadata, getFilterableFields, getModelRelations, getSearchableFields, getSortableFields, getUniqueFields, getValidationConstraints, hasSoftDeleteField, resolveModelsComments, shouldHaveAuditFields, supportsFullTextSearch, } from "./utils/model-utils";
 export { getHttpMethod, getInputTypeByOpName, getOperationDescription, getOperationSummary, getOutputTypeByOpName, getRestPath, getValidationRequirements, requiresAuthentication, returnsMultiple, shouldGenerateOperation, supportsCaching, } from "./utils/operation-utils";
 export { ProjectManager } from "./utils/project-manager";
+export { introspectPgFunctions } from "./utils/pg-function-introspector";
+export type { PgFunction, PgFunctionParam } from "./utils/pg-function-introspector";
 export declare const VERSION = "0.0.1";
 export declare const GENERATOR_NAME = "prisma-orpc-generator";
 export declare const GENERATOR_METADATA: {

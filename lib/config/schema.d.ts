@@ -46,6 +46,10 @@ export interface Config {
     wrapResponses: boolean;
     generateErrorHandling: boolean;
     prismaClientPath: string;
+    /** Enable generation of ORPC routers for fn_* PostgreSQL functions (requires DATABASE_URL) */
+    generatePgFunctions: boolean;
+    /** Prefix filter for PG functions to include (default: "fn_") */
+    pgFunctionPrefix: string;
 }
 export declare function parseConfig(raw: Record<string, string | string[]>): Config;
 export declare const defaultConfigs: {

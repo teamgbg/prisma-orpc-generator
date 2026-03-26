@@ -24,6 +24,7 @@ export declare class ORPCGenerator {
     private logger;
     private spinner;
     private plugins;
+    private pgFunctions;
     constructor(options: GeneratorOptions);
     /**
      * Normalize config flags that may arrive as strings ("true"/"false") from external generator config.
@@ -36,6 +37,12 @@ export declare class ORPCGenerator {
     private analyzePrismaSchema;
     private processModels;
     private generateCoreFiles;
+    private introspectAndGeneratePgFunctions;
+    /**
+     * Regenerate the app router index.ts to include both model routers and function routers.
+     * This overwrites the index created by generateCoreFiles.
+     */
+    private regenerateAppRouterWithFunctions;
     private writeToolManifest;
     private generateAdvancedFeatures;
     private generateDocumentation;
