@@ -2,7 +2,7 @@
  * Main orchestrator for the Prisma oRPC code generator.
  *
  * Coordinates schema analysis and generation of ORPC routers for scala-hub's
- * Prisma-backed API, enabling AI tool execution via tool-mcp.
+ * Prisma-backed API, enabling AI tool execution via scala-hub-tool-mcp.
  */
 import type { DMMF, GeneratorOptions } from "@prisma/generator-helper";
 import { type Config } from "../config/schema";

@@ -22,8 +22,10 @@ import {
 import { ProjectManager } from "../utils/project-manager";
 import { CodeGenerator } from "./code-generator";
 import { DocumentationGenerator } from "./documentation-generator";
+import { generateFunctionRouters } from "./function-generator";
 import { generateToolManifest } from "./manifest-generator";
 import { TestGenerator } from "./test-generator";
+import { type PgFunction, introspectPgFunctions } from "../utils/pg-function-introspector";
 
 // Minimal spinner to avoid ESM-only ora at runtime in CJS output
 type SpinnerState = "idle" | "running" | "stopped";
@@ -110,6 +112,7 @@ export class ORPCGenerator {
 	private logger: Logger;
 	private spinner: SpinnerLike;
 	private plugins: ORPCGeneratorPlugin[] = [];
+	private pgFunctions: PgFunction[] = [];
 
 	constructor(private options: GeneratorOptions) {
 		this.config = parseConfig(options.generator.config as Record<string, string | string[]>);
@@ -141,6 +144,9 @@ export class ORPCGenerator {
 
 			// Phase 3: Core generation
 			await this.generateCoreFiles(models, dmmf);
+
+			// Phase 3.1: PG function introspection and generation
+			await this.generatePgFunctionRouters(models);
 
 			// Phase 3.5: Tool manifest — contract for scala-ai-tool-generator
 			await this.writeToolManifest(models);
@@ -286,10 +292,112 @@ export class ORPCGenerator {
 		this.logger.debug("Core files generation completed");
 	}
 
+	private async generatePgFunctionRouters(models: PrismaModel[]): Promise<void> {
+		if (!this.isEnabled(this.config.generatePgFunctions)) {
+			this.logger.debug("PG function generation disabled, skipping");
+			return;
+		}
+
+		// Resolve DATABASE_URL from datasources
+		const datasource = this.options.datasources?.[0];
+		const dbUrl = datasource?.url?.fromEnvVar
+			? process.env[datasource.url.fromEnvVar]
+			: datasource?.url?.value;
+
+		if (!dbUrl) {
+			this.logger.info(
+				"DATABASE_URL not available — skipping PG function generation. " +
+				"Set DATABASE_URL or configure the datasource URL to enable function introspection.",
+			);
+			return;
+		}
+
+		this.spinner.text = "Introspecting PostgreSQL functions...";
+
+		try {
+			this.pgFunctions = await introspectPgFunctions(dbUrl, this.logger);
+
+			if (this.pgFunctions.length === 0) {
+				this.logger.debug("No PG functions found, skipping function router generation");
+				return;
+			}
+
+			this.spinner.text = `Generating ${this.pgFunctions.length} function routers...`;
+
+			// Generate router files for each function
+			await generateFunctionRouters(
+				this.pgFunctions,
+				this.outputDir,
+				this.projectManager,
+				this.logger,
+			);
+
+			// Re-read and update the app router index to include function routers
+			await this.appendFunctionRoutersToIndex();
+
+			this.logger.debug(
+				`Generated ${this.pgFunctions.length} PG function routers`,
+			);
+		} catch (error) {
+			this.logger.error("PG function introspection failed (non-fatal):", error);
+			// Non-fatal: models still generate fine without functions
+		}
+	}
+
+	private async appendFunctionRoutersToIndex(): Promise<void> {
+		const indexPath = path.join(this.outputDir, "routers", "index.ts");
+		const existing = await fs.readFile(indexPath, "utf8");
+
+		// Build import and router entry lines for functions
+		const importLines = this.pgFunctions
+			.map((fn) => `import { ${fn.name}Router } from "./models/${fn.name}.router";`)
+			.join("\n");
+
+		const routerEntries = this.pgFunctions
+			.map((fn) => `  ${fn.name}: ${fn.name}Router`)
+			.join(",\n");
+
+		const reExports = this.pgFunctions
+			.map((fn) => `${fn.name}Router`)
+			.join(", ");
+
+		// Insert imports after existing imports
+		const lastImportIdx = existing.lastIndexOf("import ");
+		const afterLastImport = existing.indexOf("\n", lastImportIdx);
+		const withImports =
+			existing.slice(0, afterLastImport + 1) +
+			importLines +
+			"\n" +
+			existing.slice(afterLastImport + 1);
+
+		// Insert router entries into appRouter object (before closing brace)
+		const appRouterClose = withImports.lastIndexOf("};");
+		const beforeClose = withImports.lastIndexOf("\n", appRouterClose);
+		const withEntries =
+			withImports.slice(0, beforeClose) +
+			",\n" +
+			routerEntries +
+			"\n" +
+			withImports.slice(beforeClose);
+
+		// Append re-exports to the existing export statement
+		const existingExportMatch = withEntries.match(/export \{([^}]+)\}/);
+		let finalContent = withEntries;
+		if (existingExportMatch) {
+			const existingExports = existingExportMatch[1];
+			finalContent = withEntries.replace(
+				`export {${existingExports}}`,
+				`export {${existingExports}, ${reExports}}`,
+			);
+		}
+
+		await fs.writeFile(indexPath, finalContent, "utf8");
+	}
+
 	private async writeToolManifest(models: PrismaModel[]): Promise<void> {
 		this.spinner.text = "Generating tool manifest...";
 
-		const manifest = generateToolManifest(models, this.config);
+		const manifest = generateToolManifest(models, this.config, this.pgFunctions);
 		const manifestPath = path.join(this.outputDir, "tool-manifest.json");
 		await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2), "utf8");
 
