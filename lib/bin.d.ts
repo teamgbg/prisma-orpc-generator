@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Entry point for the Prisma oRPC generator binary in scala-hub.
  *

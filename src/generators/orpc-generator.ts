@@ -2,7 +2,7 @@
  * Main orchestrator for the Prisma oRPC code generator.
  *
  * Coordinates schema analysis and generation of ORPC routers for scala-hub's
- * Prisma-backed API, enabling AI tool execution via tool-mcp.
+ * Prisma-backed API, enabling AI tool execution via scala-hub-tool-mcp.
  */
 
 import crypto from "node:crypto";
@@ -22,6 +22,7 @@ import {
 import { ProjectManager } from "../utils/project-manager";
 import { CodeGenerator } from "./code-generator";
 import { DocumentationGenerator } from "./documentation-generator";
+import { generateToolManifest } from "./manifest-generator";
 import { TestGenerator } from "./test-generator";
 
 // Minimal spinner to avoid ESM-only ora at runtime in CJS output
@@ -140,6 +141,9 @@ export class ORPCGenerator {
 
 			// Phase 3: Core generation
 			await this.generateCoreFiles(models, dmmf);
+
+			// Phase 3.5: Tool manifest — contract for scala-ai-tool-generator
+			await this.writeToolManifest(models);
 
 			// Phase 4: Advanced features
 			await this.generateAdvancedFeatures(this.options, models);
@@ -280,6 +284,18 @@ export class ORPCGenerator {
 		await codeGenerator.generateAppRouter(models);
 
 		this.logger.debug("Core files generation completed");
+	}
+
+	private async writeToolManifest(models: PrismaModel[]): Promise<void> {
+		this.spinner.text = "Generating tool manifest...";
+
+		const manifest = generateToolManifest(models, this.config);
+		const manifestPath = path.join(this.outputDir, "tool-manifest.json");
+		await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2), "utf8");
+
+		this.logger.debug(
+			`Tool manifest written: ${Object.keys(manifest.models).length} models`,
+		);
 	}
 
 	private async generateAdvancedFeatures(

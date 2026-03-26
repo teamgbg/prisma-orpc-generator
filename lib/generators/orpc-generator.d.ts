@@ -36,6 +36,7 @@ export declare class ORPCGenerator {
     private analyzePrismaSchema;
     private processModels;
     private generateCoreFiles;
+    private writeToolManifest;
     private generateAdvancedFeatures;
     private generateDocumentation;
     private generateTests;

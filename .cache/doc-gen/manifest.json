@@ -15,9 +15,13 @@
     "hash": "e5270f11e78209079d631a8ccbc12275c35faee99c9c0a2d703ce2d1e5aef2f7",
     "generatedAt": "2026-03-25"
   },
+  "src/generators/manifest-generator.ts": {
+    "hash": "25df79bca42774b6c14412419af4c73e71d98987c11254c8cbad3618cca483fa",
+    "generatedAt": "2026-03-26"
+  },
   "src/generators/orpc-generator.ts": {
-    "hash": "361515e905cf8cab148d312c3b23e380ae5b943c2184443a92da5f25cc12ca9b",
-    "generatedAt": "2026-03-25"
+    "hash": "8e63f961206c7a22195a4e84ad7ddecdbe722bbfc3b2789ac15a000b7aba79a4",
+    "generatedAt": "2026-03-26"
   },
   "src/generators/test-generator.ts": {
     "hash": "323c5be5ff3d97f04c844c7e76687b7d0a540b07a29e488e846dd364fb093583",
