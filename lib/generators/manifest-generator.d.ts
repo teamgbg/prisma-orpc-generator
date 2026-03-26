@@ -32,6 +32,7 @@ export interface ManifestFunctionParam {
     name: string;
     type: string;
     tsType: string;
+    hasDefault: boolean;
 }
 export interface ManifestFunction {
     params: ManifestFunctionParam[];
@@ -40,6 +41,7 @@ export interface ManifestFunction {
     isOrgScoped: boolean;
     isUserScoped: boolean;
     volatility: string;
+    hasOptionalParams: boolean;
     procedures: string[];
 }
 export interface ToolManifest {

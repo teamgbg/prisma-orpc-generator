@@ -40,6 +40,7 @@ export interface ManifestFunctionParam {
 	name: string;
 	type: string;
 	tsType: string;
+	hasDefault: boolean;
 }
 
 export interface ManifestFunction {
@@ -49,6 +50,7 @@ export interface ManifestFunction {
 	isOrgScoped: boolean;
 	isUserScoped: boolean;
 	volatility: string;
+	hasOptionalParams: boolean;
 	procedures: string[];
 }
 
@@ -156,12 +158,14 @@ export function generateToolManifest(
 				name: p.name,
 				type: p.type,
 				tsType: p.tsType,
+				hasDefault: p.hasDefault,
 			})),
 			returnType: fn.returnType,
 			returnTsType: fn.returnTsType,
 			isOrgScoped: fn.isOrgScoped,
 			isUserScoped: fn.isUserScoped,
 			volatility: fn.volatility,
+			hasOptionalParams: fn.hasOptionalParams,
 			procedures: ["call"],
 		};
 	}

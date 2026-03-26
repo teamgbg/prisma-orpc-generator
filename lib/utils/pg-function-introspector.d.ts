@@ -11,6 +11,8 @@ export interface PgFunctionParam {
     ordinalPosition: number;
     /** The closest TypeScript type for this SQL type */
     tsType: string;
+    /** Whether this parameter has a DEFAULT value and is therefore optional */
+    hasDefault: boolean;
 }
 export interface PgFunction {
     name: string;
@@ -25,6 +27,10 @@ export interface PgFunction {
     isUserScoped: boolean;
     /** The function's volatility: IMMUTABLE, STABLE, or VOLATILE */
     volatility: string;
+    /** Number of params that have DEFAULT values (always the last N) */
+    numDefaults: number;
+    /** Whether any params are optional (have DEFAULTs) */
+    hasOptionalParams: boolean;
 }
 /** Map SQL types to TypeScript types */
 declare function sqlTypeToTs(sqlType: string): string;

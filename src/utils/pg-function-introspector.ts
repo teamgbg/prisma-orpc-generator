@@ -14,6 +14,8 @@ export interface PgFunctionParam {
 	ordinalPosition: number;
 	/** The closest TypeScript type for this SQL type */
 	tsType: string;
+	/** Whether this parameter has a DEFAULT value and is therefore optional */
+	hasDefault: boolean;
 }
 
 export interface PgFunction {
@@ -29,6 +31,10 @@ export interface PgFunction {
 	isUserScoped: boolean;
 	/** The function's volatility: IMMUTABLE, STABLE, or VOLATILE */
 	volatility: string;
+	/** Number of params that have DEFAULT values (always the last N) */
+	numDefaults: number;
+	/** Whether any params are optional (have DEFAULTs) */
+	hasOptionalParams: boolean;
 }
 
 /** Map SQL types to TypeScript types */
@@ -77,6 +83,8 @@ export async function introspectPgFunctions(
 			function_name: string;
 			return_type: string;
 			volatility: string;
+			num_defaults: number;
+			total_params: number;
 		}>(`
 			SELECT
 				p.proname AS function_name,
@@ -85,7 +93,9 @@ export async function introspectPgFunctions(
 					WHEN 'i' THEN 'IMMUTABLE'
 					WHEN 's' THEN 'STABLE'
 					WHEN 'v' THEN 'VOLATILE'
-				END AS volatility
+				END AS volatility,
+				COALESCE(p.pronargdefaults, 0) AS num_defaults,
+				COALESCE(array_length(p.proargtypes, 1), 0) AS total_params
 			FROM pg_proc p
 			JOIN pg_namespace n ON n.oid = p.pronamespace
 			JOIN pg_type t ON t.oid = p.prorettype
@@ -145,23 +155,38 @@ export async function introspectPgFunctions(
 			ORDER BY function_name, ord
 		`, [functionNames]);
 
-		// Group params by function
-		const paramsByFunction = new Map<string, PgFunctionParam[]>();
+		// Group params by function (without hasDefault — added below per-function)
+		const rawParamsByFunction = new Map<
+			string,
+			Array<{ name: string; type: string; ordinal: number; tsType: string }>
+		>();
 		for (const row of paramsResult.rows) {
-			if (row.param_mode === "OUT") continue; // Skip output params
-			const params = paramsByFunction.get(row.function_name) || [];
+			if (row.param_mode === "OUT") continue;
+			const params = rawParamsByFunction.get(row.function_name) || [];
 			params.push({
 				name: row.param_name,
 				type: row.param_type,
-				ordinalPosition: row.ordinal,
+				ordinal: row.ordinal,
 				tsType: sqlTypeToTs(row.param_type),
 			});
-			paramsByFunction.set(row.function_name, params);
+			rawParamsByFunction.set(row.function_name, params);
 		}
 
-		// Build final PgFunction objects
+		// Build final PgFunction objects with DEFAULT detection.
+		// PostgreSQL guarantees DEFAULT params are the last N (pronargdefaults).
 		const functions: PgFunction[] = functionsResult.rows.map((fn) => {
-			const params = paramsByFunction.get(fn.function_name) || [];
+			const rawParams = rawParamsByFunction.get(fn.function_name) || [];
+			const numDefaults = fn.num_defaults;
+			const requiredCount = rawParams.length - numDefaults;
+
+			const params: PgFunctionParam[] = rawParams.map((p, idx) => ({
+				name: p.name,
+				type: p.type,
+				ordinalPosition: p.ordinal,
+				tsType: p.tsType,
+				hasDefault: idx >= requiredCount,
+			}));
+
 			return {
 				name: fn.function_name,
 				returnType: fn.return_type,
@@ -172,6 +197,8 @@ export async function introspectPgFunctions(
 				),
 				isUserScoped: params.some((p) => p.name === "p_user_id"),
 				volatility: fn.volatility,
+				numDefaults,
+				hasOptionalParams: numDefaults > 0,
 			};
 		});
 

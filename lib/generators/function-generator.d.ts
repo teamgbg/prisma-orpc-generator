@@ -4,6 +4,9 @@
  * Each function gets a single "call" procedure that accepts typed parameters
  * and returns the function result via $queryRawUnsafe. Functions are included
  * in the app router and tool manifest so they flow through to MCP tools.
+ *
+ * Functions with DEFAULT parameters use PostgreSQL named-parameter syntax
+ * (param := $1) so only provided params are sent — DEFAULTs are preserved.
  */
 import type { PgFunction } from "../utils/pg-function-introspector";
 import type { Logger } from "../utils/logger";
