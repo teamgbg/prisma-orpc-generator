@@ -13,6 +13,8 @@ import { getDMMF, parseEnvValue } from "@prisma/internals";
 import chalk from "chalk";
 import { type Config, parseConfig } from "../config/schema";
 import type { PrismaModel } from "../types/generator-types";
+import type { ORPCGeneratorPlugin, PluginModule } from "../types/plugin-types";
+import { type SpinnerLike, createSpinner } from "../utils/spinner";
 import { Logger } from "../utils/logger";
 import {
 	convertDMMFModelsToPrismaModels,
@@ -27,84 +29,6 @@ import { generateFunctionRouters } from "./function-generator";
 import { generateToolManifest } from "./manifest-generator";
 import { TestGenerator } from "./test-generator";
 import { type PgFunction, introspectPgFunctions } from "../utils/pg-function-introspector";
-
-// Minimal spinner to avoid ESM-only ora at runtime in CJS output
-type SpinnerState = "idle" | "running" | "stopped";
-export interface SpinnerLike {
-	start(_text?: string): void;
-	stop(): void;
-	succeed(_text?: string): void;
-	fail(_text?: string): void;
-	text: string;
-}
-
-function createSpinner(enabled: boolean = false): SpinnerLike {
-	// Spinner output is DISABLED by default.
-	// Enable with any of:
-	// - ORPC_SPINNER=true
-	// - ORPC_DEBUG / DEBUG contains 'orpc'
-	// - ORPC_LOG_LEVEL / ORPC_LOG in {info, debug, warn, 1, true}
-	// - enableDebugLogging generator config (passed via 'enabled')
-	const rawLevel = (process.env.ORPC_LOG_LEVEL || process.env.ORPC_LOG || "")
-		.toString()
-		.toLowerCase();
-	const dbg = (process.env.ORPC_DEBUG || process.env.DEBUG || "").toString().toLowerCase();
-	const spinnerEnv = (process.env.ORPC_SPINNER || "").toString().toLowerCase();
-
-	const explicitlyDisable =
-		spinnerEnv === "false" ||
-		rawLevel === "silent" ||
-		rawLevel === "none" ||
-		rawLevel === "0" ||
-		rawLevel === "off";
-
-	const explicitlyEnable =
-		spinnerEnv === "true" ||
-		dbg.includes("orpc") ||
-		rawLevel === "info" ||
-		rawLevel === "debug" ||
-		rawLevel === "warn" ||
-		rawLevel === "1" ||
-		rawLevel === "true";
-
-	const canLog = explicitlyDisable ? false : enabled || explicitlyEnable;
-
-	let text = "";
-	let state: SpinnerState = "idle";
-	const log = (prefix: string, t?: string) => {
-		if (!canLog) return;
-		const msg = t ?? text;
-		if (msg) {
-			// Keep logs concise; avoid overwriting lines in non-TTY
-			console.log(`${prefix} ${msg}`);
-		}
-	};
-	return {
-		get text() {
-			return text;
-		},
-		set text(v: string) {
-			text = v;
-			if (state === "running") log("⏳");
-		},
-		start(t?: string) {
-			state = "running";
-			if (t) text = t;
-			log("⏳", t);
-		},
-		stop() {
-			state = "stopped";
-		},
-		succeed(t?: string) {
-			state = "stopped";
-			log("✅", t);
-		},
-		fail(t?: string) {
-			state = "stopped";
-			log("❌", t);
-		},
-	};
-}
 
 export class ORPCGenerator {
 	private config: Config;
@@ -609,25 +533,11 @@ export {${modelReExports}, ${fnReExports}};
 	}
 }
 
-// Plugin System Interfaces
-export interface ORPCGeneratorPlugin {
-	name: string;
-	preModelHook?(
-		model: PrismaModel,
-		ctx: { dmmf: DMMF.Document; config: Config; logger: Logger },
-	): Promise<void> | void;
-	postWriteHook?(ctx: {
-		outputDir: string;
-		config: Config;
-		logger: Logger;
-		project: ProjectManager;
-	}): Promise<void> | void;
-}
-
-export type PluginModule = { default?: ORPCGeneratorPlugin } | ORPCGeneratorPlugin;
-
 // Main generator function for Prisma
 export async function generate(options: GeneratorOptions): Promise<void> {
 	const generator = new ORPCGenerator(options);
 	await generator.generate();
 }
+
+export type { ORPCGeneratorPlugin, PluginModule } from "../types/plugin-types";
+export type { SpinnerLike } from "../utils/spinner";
