@@ -10,8 +10,7 @@
  */
 
 import path from "node:path";
-import type { Config } from "../config/schema";
-import type { PgFunction, PgFunctionParam } from "../utils/pg-function-introspector";
+import type { PgFunction } from "../utils/pg-function-introspector";
 import { AUTOGEN_HEADER } from "../utils/autogen-header";
 import type { Logger } from "../utils/logger";
 import type { ProjectManager } from "../utils/project-manager";

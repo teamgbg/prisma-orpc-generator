@@ -249,8 +249,6 @@ export class ORPCGenerator {
 	private plugins: import("../types/plugin-types").ORPCGeneratorPlugin[] = [];
 }
 
-import type { ORPCGeneratorPlugin } from "../types/plugin-types";
-
 // Re-export for backward compatibility
 export type { ORPCGeneratorPlugin, PluginModule } from "../types/plugin-types";
 export type { SpinnerLike } from "../utils/spinner";
