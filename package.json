@@ -1,101 +1,101 @@
 {
-  "name": "prisma-orpc-generator",
-  "version": "1.2.0",
-  "description": "Prisma generator that creates fully-featured oRPC routers",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "type": "commonjs",
-  "bin": {
-    "prisma-orpc-generator": "lib/bin.js"
-  },
-  "scripts": {
-    "build": "bun ./node_modules/typescript/bin/tsc",
-    "build:watch": "bun ./node_modules/typescript/bin/tsc --watch",
-    "dev": "bun run build:watch",
-"lint": "bunx biome lint src/",
-    "lint:fix": "bunx biome lint src/ --write",
-    "format": "bunx biome format src/ --write",
-    "check": "bunx biome check src/",
-    "check:fix": "bunx biome check src/ --write",
-    "typecheck": "bun ./node_modules/typescript/bin/tsc --noEmit",
-    "generate:docs": "bun ./node_modules/typedoc/bin/typedoc.cjs src/index.ts",
-    "prepublishOnly": "bun run build && bun run typecheck",
-    "prerelease": "bun run build && bun run typecheck && bun run lint",
-    "release": "bun ./node_modules/semantic-release/bin/semantic-release.js",
-    "release:dry": "bun ./node_modules/semantic-release/bin/semantic-release.js --dry-run",
-    "release:predict": "git fetch --tags --quiet && bun ./node_modules/semantic-release/bin/semantic-release.js --dry-run --no-ci --plugins @semantic-release/commit-analyzer",
-    "release:predict:notes": "git fetch --tags --quiet && bun ./node_modules/semantic-release/bin/semantic-release.js --dry-run --no-ci --plugins @semantic-release/commit-analyzer,@semantic-release/release-notes-generator",
-    "example:basic-start-only": "bun --cwd examples/basic run dev",
-    "example:basic": "bun run build && bun install --cwd examples/basic && bun --cwd examples/basic ./node_modules/prisma/build/index.js generate --config prisma.config.ts && bun --cwd examples/basic ./node_modules/prisma/build/index.js db push --config prisma.config.ts && bun --cwd examples/basic run db:seed && bun --cwd examples/basic run dev",
-    "example:basic:prepare": "bun run build && bun install --cwd examples/basic && bun --cwd examples/basic ./node_modules/prisma/build/index.js generate --config prisma.config.ts && bun --cwd examples/basic ./node_modules/prisma/build/index.js db push --config prisma.config.ts && bun --cwd examples/basic run db:seed",
-    "example:basic:build": "bun run build && bun install --cwd examples/basic && bun --cwd examples/basic ./node_modules/prisma/build/index.js generate --config prisma.config.ts && bun --cwd examples/basic run build:relaxed",
-    "guard:bun-runtime": "bash scripts/guard-bun-runtime-commands.sh",
-    "prepare": "bun run build"
-  },
-  "keywords": [
-    "prisma",
-    "orpc",
-    "generator",
-    "typescript",
-    "api",
-    "rpc",
-    "type-safe",
-    "codegen",
-    "middleware",
-    "validation",
-    "multi-runtime"
-  ],
-  "author": "Omar Dulaimi",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/omar-dulaimi/prisma-orpc-generator"
-  },
-  "bugs": {
-    "url": "https://github.com/omar-dulaimi/prisma-orpc-generator/issues"
-  },
-  "homepage": "https://github.com/omar-dulaimi/prisma-orpc-generator#readme",
-  "engines": {
-    "node": ">=20.19.0"
-  },
-  "files": [
-    "lib/**/*",
-    "README.md",
-    "LICENSE"
-  ],
-  "dependencies": {
-    "@orpc/client": "^1.13.9",
-    "@orpc/server": "^1.13.9",
-    "@prisma/generator-helper": "^7.5.0",
-    "@prisma/internals": "^7.5.0",
-    "chalk": "^5.6.2",
-    "commander": "^14.0.3",
-    "dataloader": "^2.2.3",
-    "pluralize": "^8.0.0",
-    "prettier": "^3.8.1",
-    "ts-morph": "^27.0.2"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.8",
-    "@prisma/adapter-better-sqlite3": "^7.5.0",
-    "@prisma/client": "^7.5.0",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/commit-analyzer": "^13.0.1",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^12.0.6",
-    "@semantic-release/npm": "^13.1.5",
-    "@semantic-release/release-notes-generator": "^14.1.0",
-    "@types/node": "^25.5.0",
-    "@types/pluralize": "^0.0.33",
-    "@typescript/native-preview": "^7.0.0-dev.20260323.1",
-    "conventional-changelog-conventionalcommits": "^9.3.0",
-    "prisma": "^7.5.0",
-    "semantic-release": "^25.0.3",
-    "typedoc": "^0.28.18",
-    "typescript": "^5.9.3"
-  },
-  "peerDependencies": {
-    "@prisma/client": ">=7.0.0",
-    "prisma": ">=7.0.0"
-  }
+	"name": "prisma-orpc-generator",
+	"version": "1.2.0",
+	"description": "Prisma generator that creates fully-featured oRPC routers",
+	"main": "lib/index.js",
+	"types": "lib/index.d.ts",
+	"type": "commonjs",
+	"bin": {
+		"prisma-orpc-generator": "lib/bin.js"
+	},
+	"scripts": {
+		"build": "bun ./node_modules/typescript/bin/tsc",
+		"build:watch": "bun ./node_modules/typescript/bin/tsc --watch",
+		"dev": "bun run build:watch",
+		"lint": "bunx biome lint src/",
+		"lint:fix": "bunx biome lint src/ --write",
+		"format": "bunx biome format src/ --write",
+		"check": "bunx biome check src/",
+		"check:fix": "bunx biome check src/ --write",
+		"typecheck": "bun ./node_modules/typescript/bin/tsc --noEmit",
+		"generate:docs": "bun ./node_modules/typedoc/bin/typedoc.cjs src/index.ts",
+		"prepublishOnly": "bun run build && bun run typecheck",
+		"prerelease": "bun run build && bun run typecheck && bun run lint",
+		"release": "bun ./node_modules/semantic-release/bin/semantic-release.js",
+		"release:dry": "bun ./node_modules/semantic-release/bin/semantic-release.js --dry-run",
+		"release:predict": "git fetch --tags --quiet && bun ./node_modules/semantic-release/bin/semantic-release.js --dry-run --no-ci --plugins @semantic-release/commit-analyzer",
+		"release:predict:notes": "git fetch --tags --quiet && bun ./node_modules/semantic-release/bin/semantic-release.js --dry-run --no-ci --plugins @semantic-release/commit-analyzer,@semantic-release/release-notes-generator",
+		"example:basic-start-only": "bun --cwd examples/basic run dev",
+		"example:basic": "bun run build && bun install --cwd examples/basic && bun --cwd examples/basic ./node_modules/prisma/build/index.js generate --config prisma.config.ts && bun --cwd examples/basic ./node_modules/prisma/build/index.js db push --config prisma.config.ts && bun --cwd examples/basic run db:seed && bun --cwd examples/basic run dev",
+		"example:basic:prepare": "bun run build && bun install --cwd examples/basic && bun --cwd examples/basic ./node_modules/prisma/build/index.js generate --config prisma.config.ts && bun --cwd examples/basic ./node_modules/prisma/build/index.js db push --config prisma.config.ts && bun --cwd examples/basic run db:seed",
+		"example:basic:build": "bun run build && bun install --cwd examples/basic && bun --cwd examples/basic ./node_modules/prisma/build/index.js generate --config prisma.config.ts && bun --cwd examples/basic run build:relaxed",
+		"guard:bun-runtime": "bash scripts/guard-bun-runtime-commands.sh",
+		"prepare": "bun run build"
+	},
+	"keywords": [
+		"prisma",
+		"orpc",
+		"generator",
+		"typescript",
+		"api",
+		"rpc",
+		"type-safe",
+		"codegen",
+		"middleware",
+		"validation",
+		"multi-runtime"
+	],
+	"author": "Omar Dulaimi",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/omar-dulaimi/prisma-orpc-generator"
+	},
+	"bugs": {
+		"url": "https://github.com/omar-dulaimi/prisma-orpc-generator/issues"
+	},
+	"homepage": "https://github.com/omar-dulaimi/prisma-orpc-generator#readme",
+	"engines": {
+		"node": ">=20.19.0"
+	},
+	"files": [
+		"lib/**/*",
+		"README.md",
+		"LICENSE"
+	],
+	"dependencies": {
+		"@orpc/client": "^1.13.13",
+		"@orpc/server": "^1.13.14",
+		"@prisma/generator-helper": "^7.7.0",
+		"@prisma/internals": "^7.7.0",
+		"chalk": "^5.6.2",
+		"commander": "^14.0.3",
+		"dataloader": "^2.2.3",
+		"pluralize": "^8.0.0",
+		"prettier": "^3.8.1",
+		"ts-morph": "^27.0.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.8",
+		"@prisma/adapter-better-sqlite3": "^7.5.0",
+		"@prisma/client": "^7.7.0",
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/commit-analyzer": "^13.0.1",
+		"@semantic-release/git": "^10.0.1",
+		"@semantic-release/github": "^12.0.6",
+		"@semantic-release/npm": "^13.1.5",
+		"@semantic-release/release-notes-generator": "^14.1.0",
+		"@types/node": "^25.6.0",
+		"@types/pluralize": "^0.0.33",
+		"@typescript/native-preview": "^7.0.0-dev.20260404.1",
+		"conventional-changelog-conventionalcommits": "^9.3.0",
+		"prisma": "^7.7.0",
+		"semantic-release": "^25.0.3",
+		"typedoc": "^0.28.18",
+		"typescript": "^5.9.3"
+	},
+	"peerDependencies": {
+		"@prisma/client": "^7.7.0",
+		"prisma": "^7.7.0"
+	}
 }
